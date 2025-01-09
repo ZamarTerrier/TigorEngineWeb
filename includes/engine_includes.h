@@ -23,6 +23,8 @@
 
 #include "e_math.h"
 
+#include "key_defines.h"
+
 #define MAX_FONTS 256
 #define MAX_IMAGES 256
 

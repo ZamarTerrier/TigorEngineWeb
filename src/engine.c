@@ -6,19 +6,25 @@
 
 #include "gameObject2D.h"
 
+#include "e_window.h"
+
+#include "window_manager.h"
+
 TEngine engine;
 
+extern void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event);
+
 void main_loop() { 
+    
+    TWindow *window = engine.window;
   
-    SDL_GL_MakeCurrent(engine.window, engine.gl_context);
+    SDL_GL_MakeCurrent(window->instance, engine.gl_context);
 
         SDL_Event e;
         while(SDL_PollEvent(&e))
         {
-            int i;
-            if(e.type == SDL_QUIT) i = 0;
+            _wManagerPoolEventWeb(window->e_window, e);
         }
-
           
         for( int i=0;i < engine.gameObjects.size;i++){
             if(!(engine.gameObjects.objects[i]->flags & TIGOR_GAME_OBJECT_FLAG_INIT))
@@ -35,11 +41,17 @@ void main_loop() {
             GameObjectDraw(engine.gameObjects.objects[i]);
         }
 
-        SDL_GL_SwapWindow(engine.window);
+        SDL_GL_SwapWindow(window->instance);
  }
 
 void EngineInit(){        
-    engine.window = SDL_CreateWindow(engine.app_name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    engine.window = AllocateMemory(1, sizeof(TWindow));
+    
+    TWindow *window = engine.window;
+
+    wManagerInit();
+
+    window->instance = SDL_CreateWindow(engine.app_name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             engine.width, engine.height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
             
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -48,7 +60,7 @@ void EngineInit(){
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    engine.gl_context = SDL_GL_CreateContext(engine.window);
+    engine.gl_context = SDL_GL_CreateContext(window->instance);
     //SDL_CreateRenderer(engine.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     
 }
@@ -101,6 +113,10 @@ void TEngineDraw(GameObject *go){
 
     engine.gameObjects.objects[engine.gameObjects.size] = go;
     engine.gameObjects.size ++;
+}
+
+int TEngineGetKeyPress(int Key){
+
 }
 
 void TEngineRender(){
