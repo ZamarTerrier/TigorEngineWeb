@@ -78,8 +78,6 @@ void SpriteObjectSetOffsetRect(SpriteObject *so, float x, float y, float width, 
     width /= so->go.image->imgWidth;
     height /= so->go.image->imgHeight;
     
-    printf ("Change Image dimensions %dx%d\n", so->go.image->imgWidth, so->go.image->imgHeight);
-
     verts[0].texCoord.x = temp_x;
     verts[0].texCoord.y = temp_y;
 
