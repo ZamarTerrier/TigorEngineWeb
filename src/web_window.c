@@ -1,55 +1,39 @@
 #include "engine_includes.h"
 #include "window_manager.h"
 
+#include "input_manager.h"
+
 extern TEngine engine;
 
 extern wManagerWindow _wMWindow;
 
 #define KF_EXTENDED 0x0100
 
-void normWindowToDeviceCoords (wManagerWindow *window, float normWinX, float normWinY, float *deviceX, float *deviceY)
+// Retrieves and translates modifier keys
+//
+int getKeyMods(void)
 {
-    /*deviceX = (normWinX - 0.5f) * 2.0f;
-    deviceY = (1.0f - normWinY - 0.5f) * 2.0f;*/
+    int mods = 0;
+
+    SDL_Keymod modstate = SDL_GetModState();
+
+    if (modstate & KMOD_SHIFT)
+        mods |= TIGOR_MOD_SHIFT;
+    if (modstate & KMOD_CTRL)
+        mods |= TIGOR_MOD_CONTROL;
+    if (modstate & KMOD_ALT)
+        mods |= TIGOR_MOD_ALT;
+    if (modstate & KMOD_GUI)
+        mods |= TIGOR_MOD_SUPER;
+    if (modstate & KMOD_CAPS)
+        mods |= TIGOR_MOD_CAPS_LOCK;
+    if (modstate & KMOD_NUM)
+        mods |= TIGOR_MOD_NUM_LOCK;
+
+    return mods;
 }
 
-void deviceToWorldCoords (wManagerWindow *window, float deviceX, float deviceY, float *worldX, float *worldY)
-{
-    /*worldX = deviceX / mZoom - mPan.x;
-    worldY = deviceY / mAspect / mZoom - mPan.y;*/
-}
-
-
-void normWindowToWorldCoords(wManagerWindow *window, float normWinX, float normWinY, float *worldX, float *worldY)
-{
-    float deviceX, deviceY;
-    normWindowToDeviceCoords(window, normWinX, normWinY, &deviceX, &deviceY);
-    deviceToWorldCoords(window, deviceX, deviceY, worldX, worldY);
-}
-
-void windowToDeviceCoords (wManagerWindow *window, int winX, int winY, float *deviceX, float *deviceY)
-{
-    normWindowToDeviceCoords(window, winX / (float)engine.width,  winY / (float)engine.height, deviceX, deviceY);
-}
-
-void panEventMouse(wManagerWindow *window, int x, int y)
-{ 
-    wManagerWeb *wManager = (wManagerWeb *)window->WindowData;
-
-    wManager->lastCursorPosX = x;
-    wManager->lastCursorPosY = y;
-
-    /* int deltaX = engine.width / 2 + (x - wManager->mMouseButtonDownX),
-         deltaY = engine.height / 2 + (y - wManager->mMouseButtonDownY);
-
-    float deviceX, deviceY;
-    windowToDeviceCoords(deltaX,  deltaY, deviceX, deviceY);
-
-    Vec2 pan = { mCamera.basePan().x + deviceX / mCamera.zoom(), 
-                 mCamera.basePan().y + deviceY / mCamera.zoom() / mCamera.aspect() };
-    mCamera.setPan(pan);*/
-}
-void _wManagerSetCursorPosWeb(wManagerWindow *window, double xpos, double ypos)
+int _wManagerSetCursorPosWeb(wManagerWindow *window, double xpos, double ypos)
 {
 
 }
@@ -84,19 +68,25 @@ int _wManagerGetKeyScancodeWeb(int key)
     return ((wManagerWeb* )_wMWindow.WindowData)->scancodes[key];
 }
 
+
 void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
     
     wManagerWeb *wManager = (wManagerWeb *)window->WindowData;
+
+    int button, action;
+    int dx, dy;
 
     switch (event.type)
     {
         case SDL_KEYDOWN:
             window->keys[wManager->keycodes[event.key.keysym.sym]] = TIGOR_PRESS;
-
+            action = TIGOR_PRESS;
+            _wManagerInputKey(window, wManager->keycodes[event.key.keysym.sym], wManager->scancodes[event.key.keysym.sym], action, getKeyMods());
             break;
         case SDL_KEYUP:
             window->keys[wManager->keycodes[event.key.keysym.sym]] = TIGOR_RELEASE;
-
+            action = TIGOR_RELEASE;
+            _wManagerInputKey(window, wManager->keycodes[event.key.keysym.sym], wManager->scancodes[event.key.keysym.sym], action, getKeyMods());
             break;
         
         case SDL_MOUSEWHEEL: 
@@ -109,39 +99,80 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
         	#endif
         	bool mouseWheelDown = (m->preciseY < 0.0);
         	//zoomEventMouse(mouseWheelDown, mMousePositionX, mMousePositionY);
+            _wManagerInputScroll(window, 0.0, m->preciseY);
         	break;
         }
         case SDL_MOUSEMOTION: 
         {
             SDL_MouseMotionEvent *m = (SDL_MouseMotionEvent*)&event;
-            if (wManager->mMouseButtonDown && !wManager->mFingerDown && !wManager->mPinch)
-                panEventMouse(window, m->x, m->y);
+            if (wManager->mMouseButtonDown && !wManager->mFingerDown){
+                  
+                dx = m->x;
+                dy = m->y;
+
+                _wManagerInputCursorPos(window, ((wManagerWeb* )window->WindowData)->virtualCursorPosX + dx,
+                                            ((wManagerWeb* )window->WindowData)->virtualCursorPosY + dy);
+                                                 
+                ((wManagerWeb* )window->WindowData)->lastCursorPosX += dx;
+                ((wManagerWeb* )window->WindowData)->lastCursorPosY += dy;
+            }
             break;
         }
         case SDL_MOUSEBUTTONDOWN: 
         {
             SDL_MouseButtonEvent *m = (SDL_MouseButtonEvent*)&event;
-            if (m->button == SDL_BUTTON_LEFT && !wManager->mFingerDown && !wManager->mPinch)
+            if(!wManager->mFingerDown)
             {
-                wManager->mMouseButtonDown = true;
-                wManager->mMouseButtonDownX = m->x;
-                wManager->mMouseButtonDownY = m->y;
-                //mCamera.setBasePan();
+                switch(m->button){
+                    case SDL_BUTTON_LEFT:
+                        window->mouseButtons[TIGOR_MOUSE_BUTTON_LEFT] = TIGOR_PRESS;
+                        button = TIGOR_MOUSE_BUTTON_LEFT;
+                        wManager->mMouseButtonDown = true;
+                        wManager->mMouseButtonDownX = m->x;
+                        wManager->mMouseButtonDownY = m->y;
+                        break;
+                    case SDL_BUTTON_MIDDLE:
+                        window->mouseButtons[TIGOR_MOUSE_BUTTON_MIDDLE] = TIGOR_PRESS;
+                        button = TIGOR_MOUSE_BUTTON_MIDDLE;
+                        break;
+                    case SDL_BUTTON_RIGHT:
+                        window->mouseButtons[TIGOR_MOUSE_BUTTON_RIGHT] = TIGOR_PRESS;
+                        button = TIGOR_MOUSE_BUTTON_RIGHT;
+                        break;
+                }
+
+                action = TIGOR_PRESS;
+                
+                _wManagerInputMouseClick(window, button, action, getKeyMods());
             }
-            break;
         }
 
         case SDL_MOUSEBUTTONUP: 
         {
             SDL_MouseButtonEvent *m = (SDL_MouseButtonEvent*)&event;
-            if (m->button == SDL_BUTTON_LEFT)
-                wManager->mMouseButtonDown = false;
-            break;
+            
+            switch(m->button){
+                case SDL_BUTTON_LEFT:
+                    window->mouseButtons[TIGOR_MOUSE_BUTTON_LEFT] = TIGOR_RELEASE;
+                    button = TIGOR_MOUSE_BUTTON_LEFT;
+                    wManager->mMouseButtonDown = false; 
+                    break;
+                case SDL_BUTTON_MIDDLE:
+                    window->mouseButtons[TIGOR_MOUSE_BUTTON_MIDDLE] = TIGOR_RELEASE;
+                    button = TIGOR_MOUSE_BUTTON_MIDDLE;
+                    break;
+                case SDL_BUTTON_RIGHT:
+                    window->mouseButtons[TIGOR_MOUSE_BUTTON_RIGHT] = TIGOR_RELEASE;
+                    button = TIGOR_MOUSE_BUTTON_RIGHT;
+                    break;
+            }
+            
+            action = TIGOR_RELEASE;
+                
+            _wManagerInputMouseClick(window, button, action, getKeyMods());
         }
         case SDL_FINGERDOWN:
-            if (!wManager->mPinch)
-            {
-                // Finger already down means multiple fingers, which is handled by multigesture event
+            // Finger already down means multiple fingers, which is handled by multigesture event
                 if (wManager->mFingerDown)
                     wManager->mFingerDown = false;
                 else
@@ -154,11 +185,9 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
                     wManager->mFingerDownId = m->fingerId;
                     //mCamera.setBasePan();
                 }
-            }
             break;            
         case SDL_FINGERUP:
             wManager->mFingerDown = false;
-            wManager->mPinch = false;
             break;
 
     }

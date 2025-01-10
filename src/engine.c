@@ -14,6 +14,16 @@ TEngine engine;
 
 extern void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event);
 
+SomeUpdateFunc Updater = NULL;
+
+void EngineKeyCallback(wManagerWindow *window,  uint32_t key, uint32_t scancode, uint32_t action, uint32_t mods)
+{
+    //EntryWidgetKeyCallback(window, key, scancode, action, mods);
+
+    for(int i=0; i < engine.func.keyCallbackSize;i++)
+        engine.func.keyCallbacks[i](window, key, scancode, action, mods);
+}
+
 void main_loop() { 
     
     TWindow *window = engine.window;
@@ -25,21 +35,27 @@ void main_loop() {
         {
             _wManagerPoolEventWeb(window->e_window, e);
         }
+
+        if(Updater != NULL)
+            Updater(1.0);
           
         for( int i=0;i < engine.gameObjects.size;i++){
             if(!(engine.gameObjects.objects[i]->flags & TIGOR_GAME_OBJECT_FLAG_INIT))
                 GameObjectInit(engine.gameObjects.objects[i]);
         }
 
-
         // render
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         for( int i=0;i < engine.gameObjects.size;i++){
             GameObjectDraw(engine.gameObjects.objects[i]);
         }
+        
+        engine.gameObjects.size = 0;
 
         SDL_GL_SwapWindow(window->instance);
  }
@@ -66,6 +82,8 @@ void EngineInit(){
 }
 
 void TEngineInitSystem(int width, int height, const char* name){
+    TWindow *window = (TWindow *)engine.window;
+
     memset(&engine, 0, sizeof(TEngine));
 
     strcpy(engine.app_name, name);
@@ -97,6 +115,8 @@ void TEngineInitSystem(int width, int height, const char* name){
     engine.DataR.e_var_num_fonts = 0;
     
     EngineInit();
+    
+    wManagerSetKeyCallback(window->e_window, EngineKeyCallback);
         
     //memcpy(images[engine.DataR.e_var_num_images].path, text, strlen(text));
     engine.DataR.e_var_num_images ++;
@@ -115,8 +135,67 @@ void TEngineDraw(GameObject *go){
     engine.gameObjects.size ++;
 }
 
-int TEngineGetKeyPress(int Key){
+int TEngineGetMousePress(int Key){
+    TWindow *window = (TWindow *)engine.window;
 
+    int state = 0;
+
+#ifndef __ANDROID__
+    state = wManagerGetMouseButton(window->e_window, Key);
+#endif
+
+    return state;
+}
+
+void TEngineGetCursorPos(double *xpos, double *ypos){
+    TWindow *window = (TWindow *)engine.window;
+
+#ifndef __ANDROID__
+    wManagerGetCursorPos(window->e_window, xpos, ypos);
+#endif
+}
+
+void TEngineSetCursorPos(float xpos, float ypos){
+    TWindow *window = (TWindow *)engine.window;
+
+#ifndef __ANDROID__
+    wManagerSetCursorPos(window->e_window, xpos, ypos);
+#endif
+}
+
+int TEngineGetKeyPress(int Key){
+    TWindow *window = (TWindow *)engine.window;
+
+    int state = 0;
+
+#ifndef __ANDROID__
+    state =  wManagerGetKey(window->e_window, Key);
+#endif
+
+    return state;
+}
+
+void TEngineSetKeyCallback(void *callback){
+    engine.func.keyCallbackSize ++;
+
+    engine.func.keyCallbacks = (e_keyCallback *)realloc(engine.func.keyCallbacks, engine.func.keyCallbackSize * sizeof(e_keyCallback));
+    engine.func.keyCallbacks[engine.func.keyCallbackSize - 1] = (e_keyCallback)callback;
+}
+
+void TEngineSetMouseKeyCallback(void *callback){
+    TWindow *window = (TWindow *)engine.window;
+
+    wManagerSetMouseButtonCallback(window->e_window, callback);
+}
+
+void TEngineSetCursorPosCallback(void * callback){
+    TWindow *window = (TWindow *)engine.window;
+
+    wManagerSetCursorPosCallback(window->e_window, callback);
+}
+
+void TEngineSetUpdater(SomeUpdateFunc *update){
+    Updater = update;
 }
 
 void TEngineRender(){

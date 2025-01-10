@@ -133,3 +133,18 @@ void wManagerSetCursorPos(wManagerWindow *window, double xpos, double ypos)
 {
     window->platform.setCursorPos(window, xpos, ypos);
 }
+
+void wManagerSetKeyCallback(wManagerWindow *window, wManagerKeyFunc EngineKeyCallback)
+{
+    window->callbacks.key = EngineKeyCallback;
+}
+
+void wManagerSetMouseButtonCallback(wManagerWindow *window, wManagerMouseButtonFun func)
+{
+    window->callbacks.mouseButton = func;
+}
+
+void wManagerSetCursorPosCallback(wManagerWindow *window, wManagerCursorPosFun callback)
+{
+    window->callbacks.cursorPos = (wManagerCursorPos)callback;
+}

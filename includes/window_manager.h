@@ -119,4 +119,13 @@ typedef struct wManagerWindow{
 
 int wManagerInit();
 
+int wManagerGetKey(wManagerWindow *window, int key);
+void wManagerGetCursorPos(wManagerWindow *window, double *xpos, double *ypos);
+void wManagerSetCursorPos(wManagerWindow *window, double xpos, double ypos);
+int wManagerGetMouseButton(wManagerWindow *window, int button);
+
+void wManagerSetKeyCallback(wManagerWindow *window, wManagerKeyFunc EngineKeyCallback);
+void wManagerSetMouseButtonCallback(wManagerWindow *window, wManagerMouseButtonFun func);
+void wManagerSetCursorPosCallback(wManagerWindow *window, wManagerCursorPosFun callback);
+
 #endif // WINDOW_MANAGER_H

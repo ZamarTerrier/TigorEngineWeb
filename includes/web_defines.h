@@ -24,9 +24,7 @@ typedef struct{
         bool mFingerDown;
         double mFingerDownX, mFingerDownY;
         long long mFingerDownId;
-        
-        bool mPinch;
-        
+                
 } wManagerWeb;
 
 #endif //WEB_DEFINES_H
