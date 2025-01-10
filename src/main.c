@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     dParam.diffuse = "assets/hero.png";
 
     SpriteObjectInit(&sprite, &dParam);
-    Transform2DSetScale(&sprite, 50, 50);
+    Transform2DSetScale(&sprite, 20, 20);
     Transform2DSetPosition(&sprite, 100, 100);
 
     SpriteObjectSetOffsetRect(&sprite, 0, 0, 100, 120);
