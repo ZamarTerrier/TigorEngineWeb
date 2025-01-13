@@ -20,68 +20,14 @@ SpriteObject sprite;
 
 int offsetX = 0, offsetY = 0;
 
-float ticker = 1.0f;
+float ticker = 1.0f, playerSpeed = 0.3f;
 
 int idle = true;
 
 bool ready = false;
 
-void UpdateFunc(float deltaTime){
 
-    vec2 pos = Transform2DGetPosition(&sprite);
-    
-    idle = true;
-    
-    if(TEngineGetKeyPress(TIGOR_KEY_W)){
-        pos.y -= 0.1f;
-        offsetY = 6;
-        idle = false;
-    }else if(TEngineGetKeyPress(TIGOR_KEY_S)){
-        pos.y += 0.1f;
-        offsetY = 4;
-        idle = false;
-    }
-    
-    if(TEngineGetKeyPress(TIGOR_KEY_D)){
-        pos.x += 0.1f;
-        offsetY = 7;
-        idle = false;
-    }else if(TEngineGetKeyPress(TIGOR_KEY_A)){
-        pos.x -= 0.1f;
-        offsetY = 5;
-        idle = false;
-    }
-    
-    Transform2DSetPosition(&sprite, pos.x, pos.y);
-
-    if(idle)
-        offsetY = 0;
-
-    if(ticker < 0.0)
-    {
-        offsetX ++;
-        ticker = 1.0f;
-
-        if(!idle){
-            if(offsetX > 9)
-                offsetX = 0;
-        }
-        else{
-            if(offsetX > 2)
-                offsetX = 0;
-        }
-    }
-
-    SpriteObjectSetOffsetRect(&sprite, offsetX * 102, offsetY * 130, 100, 130);
-
-    TEngineDraw(&shape);
-    TEngineDraw(&sprite);
-
-    ticker -= 0.1f;
-    
-}
-
-void GetCatalog(LuaCallbackInfo *callback, const int success, const char *jsons){
+void GetCatalog(const int success, const char *jsons){
     if(!success)
         printf("Something wrong!\n");
     else{        
@@ -117,12 +63,97 @@ void GetCatalog(LuaCallbackInfo *callback, const int success, const char *jsons)
     free(jsons);
 }
 
-LuaCallbackInfo info;
+void ShowFullAdv(const int callbackType, const char *data){
+
+    switch(callbackType){
+        case 0:
+            printf("Adv Open!\n");
+            break;
+        case 1:
+            printf("Adv Close!\n");
+            break;
+        case 2:
+            printf("Adv Error! %s\n", data);
+            break;
+        case 3:
+            printf("Adv OnOffline!\n");
+            break;
+    }
+
+    free(data);
+}
+
+void UpdateFunc(float deltaTime){
+
+    vec2 pos = Transform2DGetPosition(&sprite);
+    
+    idle = true;
+    
+    if(TEngineGetKeyPress(TIGOR_KEY_W)){
+        pos.y -= playerSpeed;
+        offsetY = 6;
+        idle = false;
+    }else if(TEngineGetKeyPress(TIGOR_KEY_S)){
+        pos.y += playerSpeed;
+        offsetY = 4;
+        idle = false;
+    }
+    
+    if(TEngineGetKeyPress(TIGOR_KEY_D)){
+        pos.x += playerSpeed;
+        offsetY = 7;
+        idle = false;
+    }else if(TEngineGetKeyPress(TIGOR_KEY_A)){
+        pos.x -= playerSpeed;
+        offsetY = 5;
+        idle = false;
+    }
+
+    if(TEngineGetKeyPress(TIGOR_KEY_F))
+        JS_GetCatalog(GetCatalog);
+        
+    if(TEngineGetKeyPress(TIGOR_KEY_R))
+        JS_GameplayAPI_Start();
+    
+    if(TEngineGetKeyPress(TIGOR_KEY_Q))
+        JS_GameplayAPI_Stop();
+        
+    if(TEngineGetKeyPress(TIGOR_KEY_P))
+        JS_ShowFullscreenAdv(ShowFullAdv);
+    if(TEngineGetKeyPress(TIGOR_KEY_T))
+        JS_ShowRewardedVideo(ShowFullAdv);
+    
+    Transform2DSetPosition(&sprite, pos.x, pos.y);
+
+    if(idle)
+        offsetY = 0;
+
+    if(ticker < 0.0)
+    {
+        offsetX ++;
+        ticker = 1.0f;
+
+        if(!idle){
+            if(offsetX > 9)
+                offsetX = 0;
+        }
+        else{
+            if(offsetX > 2)
+                offsetX = 0;
+        }
+    }
+
+    SpriteObjectSetOffsetRect(&sprite, offsetX * 102, offsetY * 130, 100, 130);
+
+    TEngineDraw(&shape);
+    TEngineDraw(&sprite);
+
+    ticker -= 0.1f;
+    
+}
 
 int main(int argc, char** argv)
 {   
-
-
 
     TEngineInitSystem(1280, 720, "Test");
 
@@ -147,9 +178,6 @@ int main(int argc, char** argv)
 
     SpriteObjectSetOffsetRect(&sprite, 0, 0, 100, 120);
     
-    JS_LoadingAPI_Ready();
-    JS_GetCatalog(GetCatalog, &info);
-
     TEngineRender();
     
 

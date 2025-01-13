@@ -32,26 +32,26 @@ JS_GameplayAPI_Stop: function () {
   }
 },
 
-JS_GamesAPI_GetAllGames: function (handler, callback) {
+JS_GamesAPI_GetAllGames: function (handler) {
   if (window.ysdk.features.GamesAPI) {
     window.ysdk.features.GamesAPI.getAllGames()
       .then(function (result) {
-        {{{ makeDynCall('viii', 'handler') }}}(callback, 1, YGTigor.allocateJSON(result))
+        {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(result))
       })
       .catch(function () {
-        {{{ makeDynCall('viiii', 'handler') }}}(callback, 0, 0)
+        {{{ makeDynCall('viii', 'handler') }}}(0, 0)
       });
   }
 },
 
-JS_GamesAPI_GetGameByID: function (handler, callback, id) {
+JS_GamesAPI_GetGameByID: function (handler, id) {
   if (window.ysdk.features.GamesAPI) {
     window.ysdk.features.GamesAPI.getGameByID(id)
       .then(function (result) {
-        {{{ makeDynCall('viii', 'handler') }}}(callback, 1, YGTigor.allocateJSON(result))
+        {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(result))
       })
       .catch(function () {
-        {{{ makeDynCall('viiii', 'handler') }}}(callback, 0, 0)
+        {{{ makeDynCall('viii', 'handler') }}}(0, 0)
       });
   }
 },
@@ -60,7 +60,7 @@ JS_GamesAPI_GetGameByID: function (handler, callback, id) {
 
 //#region Payments
 
-JS_CreatePurchase: function (handler, callback, cparams) {
+JS_CreatePurchase: function (handler, cparams) {
   const params = JSON.parse(UTF8ToString(cparams));
 
   window.ysdk.getPayments({ signed: params.signed ?? false })
@@ -77,14 +77,14 @@ JS_CreatePurchase: function (handler, callback, cparams) {
         developer_payload: purchase.developerPayload,
       });
       const csignature = YGTigor.allocateString(purchase.signature ?? '');
-      {{{ makeDynCall('viiii', 'handler') }}}(callback, 1, cpurchase, csignature)
+      {{{ makeDynCall('viii', 'handler') }}}(1, cpurchase, csignature)
     })
     .catch(function () {
-      {{{ makeDynCall('viiii', 'handler') }}}(callback, 0, 0, 0)
+      {{{ makeDynCall('viii', 'handler') }}}(0, 0, 0)
     });
 },
 
-JS_GetPurchases: function (handler, callback, cparams) {
+JS_GetPurchases: function (handler, cparams) {
   const params = JSON.parse(UTF8ToString(cparams));
 
   window.ysdk.getPayments({ signed: params.signed ?? false })
@@ -100,14 +100,14 @@ JS_GetPurchases: function (handler, callback, cparams) {
         };
       }));
       const csignature = YGTigor.allocateString(purchases.signature ?? '');
-      {{{ makeDynCall('viiii', 'handler') }}}(callback, 1, cpurchase, csignature)
+      {{{ makeDynCall('viii', 'handler') }}}(1, cpurchase, csignature)
     })
     .catch(function () {
-      {{{ makeDynCall('viiii', 'handler') }}}(callback, 0, 0, 0)
+      {{{ makeDynCall('viii', 'handler') }}}(0, 0, 0)
     });
 },
 
-JS_GetCatalog: function (handler, callback) {
+JS_GetCatalog: function (handler) {
   window.ysdk.getPayments()
     .then(function (payments) {
       return payments.getCatalog();
@@ -129,27 +129,23 @@ JS_GetCatalog: function (handler, callback) {
           }
         }
       }));
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 1, ccatalog)
+      {{{ makeDynCall('vii', 'handler') }}}(1, ccatalog)
     })
     .catch(function () {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+      {{{ makeDynCall('vii', 'handler') }}}(0, 0)
     });
 },
 
-JS_ConsumePurchase: function (handler, callback, cpurchaseToken) {
+JS_ConsumePurchase: function (handler, cpurchaseToken) {
   const purchaseToken = UTF8ToString(cpurchaseToken);
 
   window.ysdk.getPayments()
     .then(function (payments) {
       return payments.consumePurchase(purchaseToken);
     }).then(function () {
-      if (callback) {
-        {{{ makeDynCall('vii', 'handler') }}}(callback, 1)
-      }
+      {{{ makeDynCall('v', 'handler') }}}(1)
     }).catch(function () {
-      if (callback) {
-        {{{ makeDynCall('vii', 'handler') }}}(callback, 0)
-      }
+      {{{ makeDynCall('v', 'handler') }}}(0)
     });
 },
 
@@ -157,7 +153,7 @@ JS_ConsumePurchase: function (handler, callback, cpurchaseToken) {
 
 //#region Player
 
-JS_GetPlayerInfo: function (handler, callback, cparams) {    
+JS_GetPlayerInfo: function (handler, cparams) {    
   const params = cparams ? JSON.parse(UTF8ToString(cparams)) : undefined;
 
   window.ysdk.getPlayer({
@@ -179,24 +175,24 @@ JS_GetPlayerInfo: function (handler, callback, cparams) {
 
       const csignature = YGTigor.allocateString(player.signature ?? '');
 
-      {{{ makeDynCall('viiii', 'handler') }}}(callback, 1, cplayerInfo, csignature)
+      {{{ makeDynCall('viii', 'handler') }}}(1, cplayerInfo, csignature)
     })
     .catch(function () {
-      {{{ makeDynCall('viiii', 'handler') }}}(callback, 0, 0, 0)
+      {{{ makeDynCall('viii', 'handler') }}}(0, 0, 0)
     });
 },
 
-JS_OpenAuthDialog: function (handler, callback) {
+JS_OpenAuthDialog: function (handler) {
   window.ysdk.auth.openAuthDialog()
     .then(function () {
-      {{{ makeDynCall('vi', 'handler') }}}(callback, 1)
+      {{{ makeDynCall('vi', 'handler') }}}(1)
     })
     .catch(function () {
-      {{{ makeDynCall('vi', 'handler') }}}(callback, 0)
+      {{{ makeDynCall('vi', 'handler') }}}(0)
     });
 },
 
-JS_GetPlayerIDsPerGame: function (handler, callback) {
+JS_GetPlayerIDsPerGame: function (handler) {
   window.ysdk.isAvailableMethod('player.getIDsPerGame').then(function (available) {
     if (available) {
       window.ysdk.getPlayer()
@@ -218,17 +214,17 @@ JS_GetPlayerIDsPerGame: function (handler, callback) {
           )
         })
         .catch(function () {
-          {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+          {{{ makeDynCall('vii', 'handler') }}}(0, 0)
         });
     } else {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+      {{{ makeDynCall('vii', 'handler') }}}(0, 0)
     }
   }).catch(function () {
-    {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+    {{{ makeDynCall('vii', 'handler') }}}(0, 0)
   });
 },
 
-JS_GetPlayerData: function (handler, callback, ckeys) {
+JS_GetPlayerData: function (handler, ckeys) {
   let keys;
 
   if (ckeys) {
@@ -240,10 +236,10 @@ JS_GetPlayerData: function (handler, callback, ckeys) {
       return player.getData(keys);
     })
     .then(function (data) {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 1, YGTigor.allocateJSON(data))
+      {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(data))
     })
     .catch(function () {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+      {{{ makeDynCall('viii', 'handler') }}}(0, 0)
     });
 },
 
@@ -258,7 +254,7 @@ JS_SetPlayerData: function (cdata, cflush) {
     });
 },
 
-JS_GetPlayerStats: function (handler, callback, ckeys) {
+JS_GetPlayerStats: function (handler, ckeys) {
   let keys;
 
   if (ckeys) {
@@ -271,10 +267,10 @@ JS_GetPlayerStats: function (handler, callback, ckeys) {
       return player.getStats(keys);
     })
     .then(function (stats) {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 1, YGTigor.allocateJSON(stats))
+      {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(stats))
     })
     .catch(function () {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+      {{{ makeDynCall('vii', 'handler') }}}(0, 0)
     });
 },
 
@@ -302,25 +298,25 @@ JS_SetPlayerStats: function (cstats) {
 
 //#region Feedback
 
-JS_CanReview: function (handler, callback) {
+JS_CanReview: function (handler) {
   ysdk.feedback
     .canReview()
     .then(function (response) {
-        {{{ makeDynCall('viiii', 'handler') }}}(callback, 1, response.value, YGTigor.allocateString(repsonse.reason ?? ''))
+        {{{ makeDynCall('viii', 'handler') }}}(1, response.value, YGTigor.allocateString(repsonse.reason ?? ''))
     })
     .catch(function () {
-      {{{ makeDynCall('viiii', 'handler') }}}(callback, 0, 0, YGTigor.allocateString(''))
+      {{{ makeDynCall('viii', 'handler') }}}(0, 0, YGTigor.allocateString(''))
     });
 },
 
-JS_RequestReview: function (handler, callback) {
+JS_RequestReview: function (handler) {
   ysdk.feedback
     .requestReview()
     .then(function (response) {
-        {{{ makeDynCall('viii', 'handler') }}}(callback, 1, response.feedbackSent)
+        {{{ makeDynCall('vii', 'handler') }}}(1, response.feedbackSent)
     })
     .catch(function () {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+      {{{ makeDynCall('vii', 'handler') }}}(0, 0)
     });
 },
 
@@ -342,51 +338,51 @@ JS_GetEnvironment: function () {
 
 //#region Adv
 
-JS_ShowFullscreenAdv: function (handler, onOpen, onClose, onError, onOffline) {
+JS_ShowFullscreenAdv: function (handler) {
   window.ysdk.adv.showFullscreenAdv({
       callbacks: {
           onOpen: function() {
-            {{{ makeDynCall('viiiiii', 'handler') }}}(onOpen, onClose, onError, onOffline, 0, YGTigor.allocateString(''));
+            {{{ makeDynCall('vii', 'handler') }}}(0, YGTigor.allocateString(''));
           },
           onClose: function(wasShown) {
-            {{{ makeDynCall('viiiiii', 'handler') }}}(onOpen, onClose, onError, onOffline, 1, YGTigor.allocateJSON(wasShown));
+            {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(wasShown));
           },
           onError: function(error) {
-            {{{ makeDynCall('viiiiii', 'handler') }}}(onOpen, onClose, onError, onOffline, 2, YGTigor.allocateString(error.toString()));
+            {{{ makeDynCall('vii', 'handler') }}}(2, YGTigor.allocateString(error.toString()));
           },
           onOffline: function() {
-            {{{ makeDynCall('viiiiii', 'handler') }}}(onOpen, onClose, onError, onOffline, 3, YGTigor.allocateString(''));
+            {{{ makeDynCall('vii', 'handler') }}}(3, YGTigor.allocateString(''));
           }
       }
   });
 },
 
-JS_ShowRewardedVideo: function (handler, onOpen, onRewarded, onClose, onError) {   
+JS_ShowRewardedVideo: function (handler) {   
   window.ysdk.adv.showRewardedVideo({
       callbacks: {
           onOpen: function() {
-            {{{ makeDynCall('viiiiii', 'handler') }}}(onOpen, onRewarded, onClose, onError, 0, YGTigor.allocateString(''));
+            {{{ makeDynCall('vii', 'handler') }}}(0, YGTigor.allocateString(''));
           },
           onRewarded: function() {
-            {{{ makeDynCall('viiiiii', 'handler') }}}(onOpen, onRewarded, onClose, onError, 1, YGTigor.allocateString(''));
+            {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateString(''));
           },
           onClose: function() {
-            {{{ makeDynCall('viiiiii', 'handler') }}}(onOpen, onRewarded, onClose, onError, 2, YGTigor.allocateString(''));
+            {{{ makeDynCall('vii', 'handler') }}}(2, YGTigor.allocateString(''));
           },
           onError: function(error) { 
-            {{{ makeDynCall('viiiiii', 'handler') }}}(onOpen, onRewarded, onClose, onError, 3, YGTigor.allocateString(error.toString()));
+            {{{ makeDynCall('vii', 'handler') }}}(3, YGTigor.allocateString(error.toString()));
           }
       }
   });
 },
 
-JS_GetBannerAdvStatus: function(handler, callback) {
+JS_GetBannerAdvStatus: function(handler) {
   ysdk.adv.getBannerAdvStatus()
     .then(function (response) {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, response.stickyAdvIsShowing, YGTigor.allocateString(response.reason ?? ''));
+      {{{ makeDynCall('vii', 'handler') }}}(response.stickyAdvIsShowing, YGTigor.allocateString(response.reason ?? ''));
     })
     .catch(function () {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 0, YGTigor.allocateString(''));
+      {{{ makeDynCall('vii', 'handler') }}}(0, YGTigor.allocateString(''));
     });
 },
 
@@ -402,7 +398,7 @@ JS_HideBannerAdv: function () {
 
 //#region Events
 
-JS_InitEvents: function (callEventCallback, destroyEventCallback) {
+JS_InitEvents: function (callEventdestroyEventCallback) {
   const EVENTS = {
     "GAME_API_PAUSE": new Map(),
     "GAME_API_RESUME": new Map(),
@@ -422,59 +418,57 @@ JS_InitEvents: function (callEventCallback, destroyEventCallback) {
       return true;
     },
 
-    registerCallback: function (eventName, cPointer, callback) {
-      EVENTS[eventName].set(cPointer, callback);
+    registerCallback: function (eventName) {
+      EVENTS[eventName].set();
     },
 
-    destroyCallback: function (eventName, cPointer) {
+    destroyCallback: function (eventName) {
       const handlers = EVENTS[eventName];
 
-      const callback = handlers.get(cPointer);
 
-      {{{ makeDynCall('vi', 'destroyEventCallback') }}}(callback);
+      {{{ makeDynCall('v', 'destroyEventCallback') }}};
 
-      handlers.delete(cPointer);
     },
   }
 
   ysdk.on("game_api_pause", function () {
-    for (const [, callback] of EVENTS["GAME_API_PAUSE"]) {
-      {{{ makeDynCall('vi', 'callEventCallback') }}}(callback);
+    for (const [] of EVENTS["GAME_API_PAUSE"]) {
+      {{{ makeDynCall('v', 'callEventCallback') }}};
     }
   });
 
   ysdk.on("game_api_resume", function () {
-    for (const [, callback] of EVENTS["GAME_API_RESUME"]) {
-      {{{ makeDynCall('vi', 'callEventCallback') }}}(callback);
+    for (const [] of EVENTS["GAME_API_RESUME"]) {
+      {{{ makeDynCall('v', 'callEventCallback') }}};
     }
   });
 
   ysdk.on("EXIT", function () {
-    for (const [, callback] of EVENTS["EXIT"]) {
-      {{{ makeDynCall('vi', 'callEventCallback') }}}(callback);
+    for (const [] of EVENTS["EXIT"]) {
+      {{{ makeDynCall('v', 'callEventCallback') }}};
     }
   });
 
   ysdk.on("HISTORY_BACK", function () {
-    for (const [, callback] of EVENTS["HISTORY_BACK"]) {
-      {{{ makeDynCall('vi', 'callEventCallback') }}}(callback);
+    for (const [] of EVENTS["HISTORY_BACK"]) {
+      {{{ makeDynCall('v', 'callEventCallback') }}};
     }
   });
 },
 
-JS_OnEvent: function (ceventName, cPointer, callback) {
+JS_OnEvent: function (ceventName) {
   const eventName = UTF8ToString(ceventName);
 
   if (YGTigor.events.checkEventName(eventName)) {
-    YGTigor.events.registerCallback(eventName, cPointer, callback)
+    YGTigor.events.registerCallback(eventName)
   }
 },
 
-JS_OffEvent: function (ceventName, cPointer) {
+JS_OffEvent: function (ceventName) {
   const eventName = UTF8ToString(ceventName);
 
   if (YGTigor.events.checkEventName(eventName)) {
-    YGTigor.events.destroyCallback(eventName, cPointer);
+    YGTigor.events.destroyCallback(eventName);
   }
 },
 
@@ -488,7 +482,7 @@ JS_DispatchEvent: function (ceventName, cdetail) {
 
 //#region Leaderboard
 
-JS_GetLeaderboardDescription: function (handler, callback, cleaderboardName) {
+JS_GetLeaderboardDescription: function (handler, cleaderboardName) {
   const leaderboardName = UTF8ToString(cleaderboardName);
   
   window.ysdk.getLeaderboards()
@@ -506,10 +500,10 @@ JS_GetLeaderboardDescription: function (handler, callback, cleaderboardName) {
         title: res.title,  
       };
       console.log(res,description)
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 1, YGTigor.allocateJSON(description))
+      {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(description))
     })
     .catch(function () {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+      {{{ makeDynCall('vii', 'handler') }}}(0, 0)
     });
 },
 
@@ -524,7 +518,7 @@ JS_SetLeaderboardScore: function (cleaderboardName, cscore, cextraData) {
     });
 },
 
-JS_GetLeaderboardPlayerEntry: function (handler, callback, cleaderboardName) {
+JS_GetLeaderboardPlayerEntry: function (handler, cleaderboardName) {
   const leaderboardName = UTF8ToString(cleaderboardName);
   
   window.ysdk.getLeaderboards()
@@ -551,14 +545,14 @@ JS_GetLeaderboardPlayerEntry: function (handler, callback, cleaderboardName) {
         unique_id: res.player.unique_id,
         formattedScore: res.formattedScore,
       }
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 1, YGTigor.allocateJSON(player_entry))
+      {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(player_entry))
     })
     .catch(function () {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+      {{{ makeDynCall('vii', 'handler') }}}(0, 0)
     });
 },
 
-JS_GetLeaderboardEntries: function (handler, callback, cleaderboardName, cparams) {
+JS_GetLeaderboardEntries: function (handler, cleaderboardName, cparams) {
   const leaderboardName = UTF8ToString(cleaderboardName);
   const params = cparams ? JSON.parse(UTF8ToString(cparams)) : undefined;
 
@@ -615,10 +609,10 @@ JS_GetLeaderboardEntries: function (handler, callback, cleaderboardName, cparams
         }),
       }
       console.log("5", entries);
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 1, YGTigor.allocateJSON(entries))
+      {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(entries))
     })
     .catch(function () {
-      {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+      {{{ makeDynCall('vii', 'handler') }}}(0, 0)
     });
   },
 
@@ -626,25 +620,25 @@ JS_GetLeaderboardEntries: function (handler, callback, cleaderboardName, cparams
 
   //#region Shortcut
 
-  JS_CanShowPrompt: function (handler, callback) {
+  JS_CanShowPrompt: function (handler) {
     ysdk.shortcut
       .canShowPrompt()
       .then(function (prompt) {
-          {{{ makeDynCall('vii', 'handler') }}}(callback, 1, prompt.canShow)
+          {{{ makeDynCall('vi', 'handler') }}}(1, prompt.canShow)
       })
       .catch(function () {
-        {{{ makeDynCall('vii', 'handler') }}}(callback, 0, 0)
+        {{{ makeDynCall('vi', 'handler') }}}(0, 0)
       });
   },
 
-  JS_ShowPrompt: function (handler, callback) {
+  JS_ShowPrompt: function (handler) {
     ysdk.shortcut
       .showPrompt()
       .then(function (result) {
-          {{{ makeDynCall('vii', 'handler') }}}(callback, 1, result.outcome === 'accepted')
+          {{{ makeDynCall('vi', 'handler') }}}(1, result.outcome === 'accepted')
       })
       .catch(function () {
-        {{{ makeDynCall('vii', 'handler') }}}(callback, 0, 0)
+        {{{ makeDynCall('vi', 'handler') }}}(0, 0)
       });
   },
 
@@ -700,16 +694,16 @@ JS_GetLeaderboardEntries: function (handler, callback, cleaderboardName, cparams
 
   //#region Flags
 
-  JS_GetFlags: function (handler, callback, cparams) {
+  JS_GetFlags: function (handler, cparams) {
     const params = cparams ? JSON.parse(UTF8ToString(cparams)) : {};
 
     window.ysdk
       .getFlags(params)
       .then(function (flags) {
-        {{{ makeDynCall('viii', 'handler') }}}(callback, 1, YGTigor.allocateJSON(flags))
+        {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(flags))
       })
       .catch(function () {
-        {{{ makeDynCall('viii', 'handler') }}}(callback, 0, 0)
+        {{{ makeDynCall('vii', 'handler') }}}(0, 0)
       });
   },
 
@@ -717,7 +711,7 @@ JS_GetLeaderboardEntries: function (handler, callback, cleaderboardName, cparams
 
   //#region Server Time
 
-  JS_GetServerTime: function (handler, callback) {
+  JS_GetServerTime: function (handler) {
     return window.ysdk.serverTime() ?? 0;
   }
 
