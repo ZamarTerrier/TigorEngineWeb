@@ -36,6 +36,7 @@ SpriteObject **tiles;
 int **layers;
 int num_layers = 0;
 
+extern TEngine engine;
 
 void GetCatalog(const int success, const char *jsons){
     if(!success)
@@ -148,7 +149,6 @@ void print_json_object(json_t *element, int indent) {
             layers[num_layers] = AllocateMemory(size, sizeof(double));
             for (int i = 0; i < size; i++) {
                 layers[num_layers][i] = json_integer_value(json_array_get(value, i));
-
             }
 
             num_layers ++;
@@ -332,34 +332,49 @@ void UpdateFunc(float deltaTime){
     if(TEngineGetKeyPress(TIGOR_KEY_G))
         printf("Player position x : %f | y : %f\n", p_pos.x, p_pos.y);
 
-    if(p_pos.x - 400 > 0)
-        c_pos.x = p_pos.x - 400;
+    int width, height;
+    TEngineGetWindowSize(&width, &height);
+
+    if(p_pos.x - width / 2 > 0)
+        c_pos.x = p_pos.x - width / 2;
 
     
-    if(p_pos.y - 300 > 0)
-        c_pos.y = p_pos.y - 300;
+    if(p_pos.y - height / 2 > 0)
+        c_pos.y = p_pos.y - height / 2;
 
     Camera2DSetPosition(c_pos.x, c_pos.y);
 
-    p_pos.x = floor(p_pos.x * 64) / 64 / 50;
-    p_pos.y = floor(p_pos.y * 64) / 64 / 50;
+    p_pos.x = floor(p_pos.x / 64);
+    p_pos.y = floor(p_pos.y / 64);
+
+	float halfViewX = 8;
+	float halfViewY = 5;
+    
+	int minX = p_pos.x - halfViewX;
+	if (minX < 0)
+		minX = 0;
+
+	int maxX = p_pos.x + halfViewX + (halfViewX - minX >= halfViewX ? halfViewX - minX : 2);
+	if (maxX >= TILE_MAP_WIDTH)
+		maxX = TILE_MAP_WIDTH - 1;
+
+	int minY = p_pos.y - halfViewY;
+	if (minY < 0)
+		minY = 0;
+
+	int maxY = p_pos.y + halfViewY + (halfViewY - minY >= halfViewY ? halfViewY - minY : 2);
+	if (maxY >= TILE_MAP_HEIGHT)
+		maxY = TILE_MAP_HEIGHT - 1;
 
     
     if(TEngineGetKeyPress(TIGOR_KEY_G))
         printf("Player tile position x : %f | y : %f\n", p_pos.x, p_pos.y);
 
     for(int i=0;i < num_layers;i++){
-        for(int y = (int)p_pos.y < 6 ? 0 : (int)p_pos.y - 6; y < (int)p_pos.y + 12;y++)
+        for(int  y = minY; y < maxY; y++)
         {
-            if(y < 0 || y > TILE_MAP_HEIGHT - 1)
-                continue;
-
-            for(int x =(int) p_pos.x < 10 ? 0 : (int)p_pos.x - 10; x < (int)p_pos.x + 20;x++)
-            {
-                
-                if(x < 0 || x > TILE_MAP_WIDTH - 1)
-                    continue;
-                    
+            for(int x = minX; x < maxX; x++)
+            {                    
                 TEngineDraw(&tiles[i][(y * TILE_MAP_WIDTH) + x]);
             }
         }
@@ -376,14 +391,14 @@ void UpdateFunc(float deltaTime){
 int main(int argc, char** argv)
 {   
 
-    LoadTileMap("assets/Island.tmj");
+    LoadTileMap("assets/Village.tmj");
 
     printf("Tilemap size w : %i, h : %i\n", TILE_MAP_WIDTH, TILE_MAP_HEIGHT);
 
 
     tiles = AllocateMemory(num_layers, sizeof(SpriteObject *));
 
-    TEngineInitSystem(1280, 720, "Test");
+    TEngineInitSystem(1024, 600, "Test");
 
     TEngineSetUpdater((SomeUpdateFunc)UpdateFunc);
 
@@ -406,9 +421,9 @@ int main(int argc, char** argv)
 
     SpriteObjectSetOffsetRect(&sprite, 0, 0, 100, 120);
     
-    dParam.diffuse = "assets/tiles.png";
+    dParam.diffuse = "assets/tilemap_packed.png";
 
-    int tile_size_x = 64, tile_size_y = 64;
+    int tile_size_x = 16, tile_size_y = 16;
     int tile_scale_x = 64, tile_scale_y = 64;
 
     int offX = 0, offY = 0;
@@ -421,7 +436,7 @@ int main(int argc, char** argv)
 
                 SpriteObjectInit(&tiles[i][(y * TILE_MAP_WIDTH) + x ], &dParam);
                 Transform2DSetScale(&tiles[i][(y * TILE_MAP_WIDTH) + x ], tile_scale_x / 2, tile_scale_y / 2);
-                Transform2DSetPosition(&tiles[i][(y * TILE_MAP_WIDTH) + x ], x * tile_scale_x + 32, y * tile_scale_y + 32);
+                Transform2DSetPosition(&tiles[i][(y * TILE_MAP_WIDTH) + x ], x * tile_scale_x, y * tile_scale_y);
 
                 int s_val = layers[i][(y * TILE_MAP_WIDTH) + x ];
 

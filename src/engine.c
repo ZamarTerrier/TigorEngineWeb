@@ -211,6 +211,12 @@ void TEngineSetUpdater(SomeUpdateFunc *update){
     Updater = update;
 }
 
+void TEngineGetWindowSize(int *width, int *height){
+
+    *width = engine.width;
+    *height = engine.height;
+}
+
 void TEngineRender(){
     #ifdef __EMSCRIPTEN__
         emscripten_set_main_loop(main_loop, 0, true);
