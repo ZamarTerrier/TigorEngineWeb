@@ -28,7 +28,7 @@
 #define MAX_FONTS 256
 #define MAX_IMAGES 256
 
-#define MAX_DRAW_OBJECTS 256
+#define START_DRAW_OBJECTS 256
 
 typedef void (*e_charCallback)(void *, uint32_t);
 typedef void (*e_keyCallback)(void *, int , int , int , int );
@@ -64,12 +64,13 @@ typedef struct{
 } GameObjectImage;
 
 typedef struct{
-    struct RenderTexture *objects[MAX_DRAW_OBJECTS];
+    struct RenderTexture *objects[START_DRAW_OBJECTS];
     uint32_t size;
 } EngineRenderItems;
 
 typedef struct{
-    struct GameObject *objects[MAX_DRAW_OBJECTS];
+    struct GameObject **objects;
+    uint32_t curr_size;
     uint32_t size;    
 } EngineGameObjects;
 

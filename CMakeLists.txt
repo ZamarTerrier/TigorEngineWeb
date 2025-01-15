@@ -26,4 +26,4 @@ file(GLOB_RECURSE CORE_SRC src/*.c)
 
 include_directories(libs includes)
 add_executable(${PROJECT_NAME} ${CORE_SRC})
-#target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/build/libTigorEngineWeb.a)
+target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/build/libjansson.a)

@@ -8,6 +8,8 @@
 
 #include "e_window.h"
 
+#include "e_texture_variables.h"
+
 #include "window_manager.h"
 
 TEngine engine;
@@ -108,11 +110,10 @@ void TEngineInitSystem(int width, int height, const char* name){
 
     engine.MAX_FRAMES_IN_FLIGHT = 3;
 
-    //engine.DataR.e_var_images = AllocateMemoryP(MAX_IMAGES, sizeof(engine_buffered_image), &engine);
-    engine.DataR.e_var_num_images = 0;
-
+    engine.DataR.e_var_images = AllocateMemoryP(MAX_IMAGES, sizeof(engine_buffered_image), &engine);
     engine.DataR.e_var_fonts = AllocateMemoryP(MAX_FONTS, sizeof(FontCache), &engine);
-    engine.DataR.e_var_num_fonts = 0;
+    engine.gameObjects.objects = AllocateMemoryP(START_DRAW_OBJECTS, sizeof(struct GameObject *), &engine);
+    engine.gameObjects.curr_size = START_DRAW_OBJECTS;
     
     EngineInit();
     
@@ -125,6 +126,18 @@ void TEngineInitSystem(int width, int height, const char* name){
 }
 
 void TEngineDraw(GameObject *go){
+
+    if(engine.gameObjects.size > engine.gameObjects.curr_size - 1)
+    {
+        uint32_t new_size = engine.gameObjects.curr_size * 2;
+        struct GameObject *point = AllocateMemoryP(new_size, sizeof(struct GameObject *), &engine);
+        memcpy(point, engine.gameObjects.objects, sizeof(struct GameObject *) * engine.gameObjects.size);
+
+        FreeMemory(engine.gameObjects.objects);
+
+        engine.gameObjects.objects = point;
+        engine.gameObjects.curr_size = new_size;
+    }
 
     for( int i=0;i < engine.gameObjects.size;i++){
         if(engine.gameObjects.objects[i] == go)

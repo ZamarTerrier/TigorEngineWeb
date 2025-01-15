@@ -26,7 +26,7 @@ const char *vertexShaderSource =
       "}                           \n";
 const char *fragmentShaderSource = 
 #ifdef EMSCRIPTEN
-      "precision mediump float;                   \n"
+      "precision highp float;                   \n"
 #endif
       "uniform sampler2D u_texture;\n"
       "varying vec2 vTextureCoords;\n"

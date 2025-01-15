@@ -14,6 +14,11 @@ typedef struct{
 } vec2;
 
 typedef struct{
+    double x;
+    double y;
+} vec2_d;
+
+typedef struct{
     float x;
     float y;
     float z;
