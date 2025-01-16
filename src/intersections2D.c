@@ -436,7 +436,7 @@ int IntersectionSquareSquare(InterSquareParam *box1, InterSquareParam *box2, flo
 
     *dist = SqDistPointSquare(box1->position, box2);
     *dir = v2_muls(v2_norm(v), -1);
-    *depth = 0.01f;
+    *depth = v2_length(v2_sub(box1->position, box2->position));
 
     return 1;
 }

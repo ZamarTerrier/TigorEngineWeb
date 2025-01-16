@@ -79,12 +79,12 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
     switch (event.type)
     {
         case SDL_KEYDOWN:
-            window->keys[wManager->keycodes[event.key.keysym.sym]] = TIGOR_PRESS;
+            window->keys[wManager->keycodes[event.key.keysym.scancode]] = TIGOR_PRESS;
             action = TIGOR_PRESS;
             _wManagerInputKey(window, wManager->keycodes[event.key.keysym.sym], wManager->scancodes[event.key.keysym.sym], action, getKeyMods());
             break;
         case SDL_KEYUP:
-            window->keys[wManager->keycodes[event.key.keysym.sym]] = TIGOR_RELEASE;
+            window->keys[wManager->keycodes[event.key.keysym.scancode]] = TIGOR_RELEASE;
             action = TIGOR_RELEASE;
             _wManagerInputKey(window, wManager->keycodes[event.key.keysym.sym], wManager->scancodes[event.key.keysym.sym], action, getKeyMods());
             break;
