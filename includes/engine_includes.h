@@ -2,6 +2,7 @@
 #define ENGINEINCLUDES_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __EMSCRIPTEN__
 
