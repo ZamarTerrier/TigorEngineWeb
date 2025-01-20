@@ -12,10 +12,14 @@ extern "C"
 #endif
 
 typedef void (*SomeUpdateFunc)(float deltaTime);
+typedef void (*SomeKeyCallbackFunc)(void *wManager, int key, int scancode, int action, int mods);
+typedef void (*SomeMouseKeyCallbackFunc)(void *wManager, int button, int action, int mods);
 
 void TEngineInitSystem(int width, int height, const char* name);
 void TEngineDraw(GameObject *go);
-void TEngineSetUpdater(SomeUpdateFunc *update);
+void TEngineSetUpdater(SomeUpdateFunc update);
+void TEngineSetKeyCallback(SomeKeyCallbackFunc callback);
+void TEngineSetMouseKeyCallback(SomeMouseKeyCallbackFunc callback);
 void TEngineRender();
 
 int TEngineGetMousePress(int Key);

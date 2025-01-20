@@ -24,7 +24,7 @@ typedef void (*wManagerWindowMaximizeFun)(wManagerWindow* window, int maximized)
 typedef void (*wManagerMouseButtonFun)(wManagerWindow* , int32_t, int32_t, int32_t);
 typedef void (*wManagerCursorPosFun)(wManagerWindow* window, double xpos, double ypos);
 typedef void (*wManageWindowPosFun)(wManagerWindow* window, int32_t xpos, int32_t ypos);
-typedef void (*wManagerKeyFunc)(wManagerWindow*, uint32_t, uint32_t, uint32_t, uint32_t);
+typedef void (*wManagerKeyFunc)(wManagerWindow*, int, int, int, int);
 typedef void (*wManagerScrollfFn)(wManagerWindow* window, double xoffset, double yoffset);
 typedef void (*wManagerDropFun)(wManagerWindow* window, int path_count, const char* paths[]);
 typedef void (*wManagerWindowSizeFunc)(wManagerWindow *window, int32_t width, int32_t height);

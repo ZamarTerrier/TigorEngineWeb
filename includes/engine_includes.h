@@ -33,7 +33,7 @@
 
 typedef void (*e_charCallback)(void *, uint32_t);
 typedef void (*e_keyCallback)(void *, int , int , int , int );
-
+typedef void (*e_mouseKeyCallback)(void *, int , int , int );
 
 typedef enum{
     TIGOR_VERTEX_TYPE_NONE,
@@ -61,7 +61,6 @@ typedef struct{
     int imgHeight;
     uint32_t img_type;
     uint32_t texture_id;
-    uint32_t flags;
 } GameObjectImage;
 
 typedef struct{
@@ -118,6 +117,9 @@ typedef struct{
 
         e_keyCallback *keyCallbacks;
         int keyCallbackSize;
+        
+        e_mouseKeyCallback *mouseKeyCallbacks;
+        int mouseKeyCallbackSize;
     } func;
     
     struct{

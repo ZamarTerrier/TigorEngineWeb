@@ -131,7 +131,7 @@ void FreeMemory(void *data){
     }
 
     if(curr == NULL){
-        printf("Can't find that memory : 0x%x\n", data);
+        printf("Can't find that memory : 0x%x\n", (uint32_t)data);
         return;
     }
 

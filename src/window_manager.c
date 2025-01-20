@@ -72,7 +72,7 @@ int wManagerInit(){
     
     _wManagerConnectWeb(&_wMWindow.platform);
     _wManagerConnectWeb(&wManager->platform);
-
+    
     if (!_wMWindow.platform.init())
     {
         wManagerTerminate();
@@ -84,7 +84,8 @@ int wManagerInit(){
     
     createKeyTables(_wMWindow.WindowData);
     createKeyTables(wManager->WindowData);
-
+    
+    return 1;
 }
 
 int wManagerGetMouseButton(wManagerWindow *window, int button)
@@ -132,11 +133,6 @@ void wManagerGetCursorPos(wManagerWindow *window, double *xpos, double *ypos)
 void wManagerSetCursorPos(wManagerWindow *window, double xpos, double ypos)
 {
     window->platform.setCursorPos(window, xpos, ypos);
-}
-
-void wManagerSetKeyCallback(wManagerWindow *window, wManagerKeyFunc EngineKeyCallback)
-{
-    window->callbacks.key = EngineKeyCallback;
 }
 
 void wManagerSetMouseButtonCallback(wManagerWindow *window, wManagerMouseButtonFun func)

@@ -35,7 +35,7 @@ int getKeyMods(void)
 
 int _wManagerSetCursorPosWeb(wManagerWindow *window, double xpos, double ypos)
 {
-
+    return 0;
 }
 
 void _wManagerGetCursorPosWeb(wManagerWindow *window, double* xpos, double* ypos)
@@ -79,14 +79,12 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
     switch (event.type)
     {
         case SDL_KEYDOWN:
-            window->keys[wManager->keycodes[event.key.keysym.scancode]] = TIGOR_PRESS;
             action = TIGOR_PRESS;
-            _wManagerInputKey(window, wManager->keycodes[event.key.keysym.sym], wManager->scancodes[event.key.keysym.sym], action, getKeyMods());
+            _wManagerInputKey(window, wManager->keycodes[event.key.keysym.scancode], event.key.keysym.scancode, action, getKeyMods());
             break;
         case SDL_KEYUP:
-            window->keys[wManager->keycodes[event.key.keysym.scancode]] = TIGOR_RELEASE;
             action = TIGOR_RELEASE;
-            _wManagerInputKey(window, wManager->keycodes[event.key.keysym.sym], wManager->scancodes[event.key.keysym.sym], action, getKeyMods());
+            _wManagerInputKey(window, wManager->keycodes[event.key.keysym.scancode], event.key.keysym.scancode, action, getKeyMods());
             break;
         
         case SDL_MOUSEWHEEL: 
@@ -125,18 +123,15 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
             {
                 switch(m->button){
                     case SDL_BUTTON_LEFT:
-                        window->mouseButtons[TIGOR_MOUSE_BUTTON_LEFT] = TIGOR_PRESS;
                         button = TIGOR_MOUSE_BUTTON_LEFT;
                         wManager->mMouseButtonDown = true;
                         wManager->mMouseButtonDownX = m->x;
                         wManager->mMouseButtonDownY = m->y;
                         break;
                     case SDL_BUTTON_MIDDLE:
-                        window->mouseButtons[TIGOR_MOUSE_BUTTON_MIDDLE] = TIGOR_PRESS;
                         button = TIGOR_MOUSE_BUTTON_MIDDLE;
                         break;
                     case SDL_BUTTON_RIGHT:
-                        window->mouseButtons[TIGOR_MOUSE_BUTTON_RIGHT] = TIGOR_PRESS;
                         button = TIGOR_MOUSE_BUTTON_RIGHT;
                         break;
                 }
@@ -153,16 +148,13 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
             
             switch(m->button){
                 case SDL_BUTTON_LEFT:
-                    window->mouseButtons[TIGOR_MOUSE_BUTTON_LEFT] = TIGOR_RELEASE;
                     button = TIGOR_MOUSE_BUTTON_LEFT;
                     wManager->mMouseButtonDown = false; 
                     break;
                 case SDL_BUTTON_MIDDLE:
-                    window->mouseButtons[TIGOR_MOUSE_BUTTON_MIDDLE] = TIGOR_RELEASE;
                     button = TIGOR_MOUSE_BUTTON_MIDDLE;
                     break;
                 case SDL_BUTTON_RIGHT:
-                    window->mouseButtons[TIGOR_MOUSE_BUTTON_RIGHT] = TIGOR_RELEASE;
                     button = TIGOR_MOUSE_BUTTON_RIGHT;
                     break;
             }

@@ -142,7 +142,7 @@ void createKeyTables(void *wData)
     }
 }
 
-void _wManagerUpdateKeyNamesWeb(void)
+void _wManagerUpdateKeyNamesWeb()
 {
     int key;
     char state[256] = {0};
@@ -155,6 +155,8 @@ void _wManagerUpdateKeyNamesWeb(void)
 uint32_t _wManagerInitWeb(void)
 {
     _wManagerUpdateKeyNamesWeb();
+
+    return 1;
 }
 
 void _wManagerTerminateWeb(void){

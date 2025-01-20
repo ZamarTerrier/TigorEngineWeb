@@ -81,7 +81,7 @@ void GameObject2DSetShader(GameObject2D *go, char *vert_source, char *frag_sourc
     // ------------------------------------
     // vertex shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vert_source, NULL);
+    glShaderSource(vertexShader, 1, (const GLchar *const *) &vert_source, NULL);
     glCompileShader(vertexShader);
     // check for shader compile errors
     int success;
@@ -94,7 +94,7 @@ void GameObject2DSetShader(GameObject2D *go, char *vert_source, char *frag_sourc
     }
     // fragment shader
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &frag_source, NULL);
+    glShaderSource(fragmentShader, 1, (const GLchar *const *) &frag_source, NULL);
     glCompileShader(fragmentShader);
     // check for shader compile errors
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
@@ -178,7 +178,7 @@ void GameObject2DInitDraw(GameObject2D *go)
 
 void GameObject2DInitDefault(GameObject2D *go){
 
-    GameObjectShaderInit(go);
+    GameObjectShaderInit((GameObject *)go);
 
     GameObject2DInitDraw(go);
 }
@@ -218,9 +218,6 @@ void GameObject2DDestroy(GameObject2D* go){
         if(go->graphObj.shapes[i].iParam.indexesSize)
             FreeMemory(go->graphObj.shapes[i].iParam.indices);
     }
-
-    FreeMemory(go->self.vert);
-    FreeMemory(go->self.frag);
     
     go->self.flags &= ~(TIGOR_GAME_OBJECT_FLAG_INIT);
 }
@@ -241,6 +238,10 @@ void GameObject2DInit(GameObject2D* go, GameObjectType type)
     Transform2DInit(&go->transform);
 
     switch(type){
+        case TIGOR_GAME_OBJECT_TYPE_3D:
+        case TIGOR_GAME_OBJECT_TYPE_MODEL:
+        case TIGOR_GAME_OBJECT_TYPE_PARTICLE_3D:
+            break;
         case TIGOR_GAME_OBJECT_TYPE_2D:
             GraphicsObjectInit(&go->graphObj, TIGOR_VERTEX_TYPE_2D_OBJECT);
             break;

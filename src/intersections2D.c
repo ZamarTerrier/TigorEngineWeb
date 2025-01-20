@@ -532,13 +532,13 @@ Manfloid2D IntersectionSquareOOBSquareOOB(void *sq1, void *sq2)
     GameObject2D *go1 = (GameObject2D *)sq1;
     GameObject2D *go2 = (GameObject2D *)sq2;
 
-    vec2 pos1 = Transform2DGetPosition(go1);
-    vec2 pos2 = Transform2DGetPosition(go2);
-    float rot1 = Transform2DGetRotation(go1);
-    float rot2 = Transform2DGetRotation(go2);
+    vec2 pos1 = Transform2DGetPosition((struct GameObject2D_T *)go1);
+    vec2 pos2 = Transform2DGetPosition((struct GameObject2D_T *)go2);
+    float rot1 = Transform2DGetRotation((struct GameObject2D_T *)go1);
+    float rot2 = Transform2DGetRotation((struct GameObject2D_T *)go2);
 
-    Point2D points1 = GetVertices2D(rot1, pos1, Transform2DGetScale(go1), vec3_f(1, 0, 0));
-    Point2D points2 = GetVertices2D(rot2, pos2, Transform2DGetScale(go2), vec3_f(0, 1, 0));
+    Point2D points1 = GetVertices2D(rot1, pos1, Transform2DGetScale((struct GameObject2D_T *)go1), vec3_f(1, 0, 0));
+    Point2D points2 = GetVertices2D(rot2, pos2, Transform2DGetScale((struct GameObject2D_T *)go2), vec3_f(0, 1, 0));
     
     Manfloid2D result;
     result.collisions = CheckContact(&points1, &points2, result.depths);

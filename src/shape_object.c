@@ -88,7 +88,7 @@ int ShapeObjectInit(ShapeObject *so, DrawParam *dParam, ShapeType type, void *pa
         
         so->go.image = AllocateMemory(1, sizeof(GameObjectImage));
 
-        TextureLoadImage(so, dParam->diffuse);
+        TextureLoadImage((GameObject *)so, dParam->diffuse);
         
     }  
 

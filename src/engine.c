@@ -18,7 +18,7 @@ extern void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event);
 
 SomeUpdateFunc Updater = NULL;
 
-void EngineKeyCallback(wManagerWindow *window,  uint32_t key, uint32_t scancode, uint32_t action, uint32_t mods)
+void EngineKeyCallback(wManagerWindow *window,  int key, int scancode, int action, int mods)
 {
     //EntryWidgetKeyCallback(window, key, scancode, action, mods);
 
@@ -26,9 +26,15 @@ void EngineKeyCallback(wManagerWindow *window,  uint32_t key, uint32_t scancode,
         engine.func.keyCallbacks[i](window, key, scancode, action, mods);
 }
 
+void EngineMouseKeyCallback(wManagerWindow *window,  int button, int action, int mods){
+
+    for(int i=0; i < engine.func.mouseKeyCallbackSize;i++)
+        engine.func.mouseKeyCallbacks[i](window, button, action, mods);
+}
+
 void main_loop() { 
     
-    TWindow *window = engine.window;
+    TWindow *window = (TWindow *)engine.window;
   
     SDL_GL_MakeCurrent(window->instance, engine.gl_context);
 
@@ -65,10 +71,10 @@ void main_loop() {
 void EngineInit(){        
     engine.window = AllocateMemory(1, sizeof(TWindow));
     
-    TWindow *window = engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     wManagerInit();
-
+    
     window->instance = SDL_CreateWindow(engine.app_name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             engine.width, engine.height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
             
@@ -116,13 +122,9 @@ void TEngineInitSystem(int width, int height, const char* name){
     engine.gameObjects.curr_size = START_DRAW_OBJECTS;
     
     EngineInit();
-    
-    wManagerSetKeyCallback(window->e_window, EngineKeyCallback);
-        
+            
     //memcpy(images[engine.DataR.e_var_num_images].path, text, strlen(text));
     engine.DataR.e_var_num_images ++;
-    
-    memset(&engine.renders, 0, sizeof(EngineRenderItems));
 }
 
 void TEngineDraw(GameObject *go){
@@ -135,7 +137,7 @@ void TEngineDraw(GameObject *go){
 
         FreeMemory(engine.gameObjects.objects);
 
-        engine.gameObjects.objects = point;
+        engine.gameObjects.objects = (GameObject **)point;
         engine.gameObjects.curr_size = new_size;
     }
 
@@ -188,17 +190,18 @@ int TEngineGetKeyPress(int Key){
     return state;
 }
 
-void TEngineSetKeyCallback(void *callback){
+void TEngineSetKeyCallback(SomeKeyCallbackFunc callback){
     engine.func.keyCallbackSize ++;
 
     engine.func.keyCallbacks = (e_keyCallback *)realloc(engine.func.keyCallbacks, engine.func.keyCallbackSize * sizeof(e_keyCallback));
     engine.func.keyCallbacks[engine.func.keyCallbackSize - 1] = (e_keyCallback)callback;
 }
 
-void TEngineSetMouseKeyCallback(void *callback){
-    TWindow *window = (TWindow *)engine.window;
+void TEngineSetMouseKeyCallback(SomeMouseKeyCallbackFunc callback){
+    engine.func.mouseKeyCallbackSize ++;
 
-    wManagerSetMouseButtonCallback(window->e_window, callback);
+    engine.func.mouseKeyCallbacks = (e_mouseKeyCallback *)realloc(engine.func.mouseKeyCallbacks, engine.func.mouseKeyCallbackSize * sizeof(e_mouseKeyCallback));
+    engine.func.mouseKeyCallbacks[engine.func.mouseKeyCallbackSize - 1] = (e_mouseKeyCallback)callback;
 }
 
 void TEngineSetCursorPosCallback(void * callback){
@@ -207,7 +210,7 @@ void TEngineSetCursorPosCallback(void * callback){
     wManagerSetCursorPosCallback(window->e_window, callback);
 }
 
-void TEngineSetUpdater(SomeUpdateFunc *update){
+void TEngineSetUpdater(SomeUpdateFunc update){
     Updater = update;
 }
 

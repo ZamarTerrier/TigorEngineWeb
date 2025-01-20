@@ -32,7 +32,7 @@ typedef struct{
 } Texture2D;
 
 typedef struct{
-    char path[1024];
+    char path[256];
     Texture2D texture;
     uint32_t buffer;
 } engine_buffered_image;

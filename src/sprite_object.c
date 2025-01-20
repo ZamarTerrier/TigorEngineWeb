@@ -51,6 +51,7 @@ void SpriteObjectCreateQuad(SpriteObject *so)
 
 int SpriteObjectInit(SpriteObject *so, DrawParam *dParam){
 
+
     GameObject2DInit((GameObject2D *)so, TIGOR_GAME_OBJECT_TYPE_2D);
 
     SpriteObjectCreateQuad(so);
@@ -60,7 +61,7 @@ int SpriteObjectInit(SpriteObject *so, DrawParam *dParam){
         
         so->go.image = AllocateMemory(1, sizeof(GameObjectImage));
 
-        TextureLoadImage(so, dParam->diffuse);
+        TextureLoadImage((GameObject *)so, dParam->diffuse);
     }  
 
     so->go.graphObj.num_shapes = 1;

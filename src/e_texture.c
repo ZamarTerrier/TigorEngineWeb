@@ -9,7 +9,7 @@
 
 extern TEngine engine;
 
-uint32_t TextureFindTexture(char *path, int *width, int *height)
+uint32_t TextureFindTexture(const char *path, int *width, int *height)
 {
     if(path == NULL)
         return 0;
@@ -55,11 +55,11 @@ void TextureLoadImage(GameObject *go, const char *filePath){
     }
 
     int len = strlen(filePath);
-    memset(images[engine.DataR.e_var_num_images].path, 0, 2048);
+    memset(images[engine.DataR.e_var_num_images].path, 0, 256);
     memcpy(images[engine.DataR.e_var_num_images].path, filePath, len);
 
     int width, height, nrChannels;
-    char *pixels = stbi_load(filePath, &width, &height, &nrChannels, 0);
+    stbi_uc *pixels = stbi_load(filePath, &width, &height, &nrChannels, 0);
 
     go2D->image->imgWidth = width;
     go2D->image->imgHeight = height;

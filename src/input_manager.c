@@ -1,7 +1,12 @@
 #include "input_manager.h"
 
+#include "e_window.h"
+
 // Internal key state used for sticky keys
 #define _TIGOR_STICK 3
+
+extern void EngineKeyCallback(wManagerWindow *window,  int key, int scancode, int action, int mods);
+extern void EngineMouseKeyCallback(wManagerWindow *window,  int button, int action, int mods);
 
 // Notifies shared code of a physical key event
 //
@@ -29,8 +34,7 @@ void _wManagerInputKey(wManagerWindow* window, int key, int scancode, int action
     if (!window->lockKeyMods)
         mods &= ~(TIGOR_MOD_CAPS_LOCK | TIGOR_MOD_NUM_LOCK);
 
-    if (window->callbacks.key)
-        window->callbacks.key((wManagerWindow*) window, key, scancode, action, mods);
+    EngineKeyCallback((wManagerWindow*) window, key, scancode, action, mods);
 }
 // Notifies shared code of a Unicode codepoint input event
 // The 'plain' parameter determines whether to emit a regular character event
@@ -88,8 +92,7 @@ void _wManagerInputMouseClick(wManagerWindow* window, int button, int action, in
     else
         window->mouseButtons[button] = (char) action;
 
-    if (window->callbacks.mouseButton)
-        window->callbacks.mouseButton((wManagerWindow*) window, button, action, mods);
+    EngineMouseKeyCallback((wManagerWindow*) window, button, action, mods);
 }
 
 // Notifies shared code of a scroll event
