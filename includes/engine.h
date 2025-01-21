@@ -22,6 +22,8 @@ void TEngineSetKeyCallback(SomeKeyCallbackFunc callback);
 void TEngineSetMouseKeyCallback(SomeMouseKeyCallbackFunc callback);
 void TEngineRender();
 
+void TEngineSetFont(char *font_path);
+
 int TEngineGetMousePress(int Key);
 void TEngineGetCursorPos(double *xpos, double *ypos);
 void TEngineSetCursorPos(float xpos, float ypos);

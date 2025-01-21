@@ -10,6 +10,7 @@
 
 #include "e_texture_variables.h"
 
+#include "GUIManager.h"
 #include "window_manager.h"
 
 TEngine engine;
@@ -46,6 +47,11 @@ void main_loop() {
 
         if(Updater != NULL)
             Updater(1.0);
+
+            
+        if(GUIManagerIsInit())
+            GUIManagerUpdate();
+            
           
         for( int i=0;i < engine.gameObjects.size;i++){
             if(!(engine.gameObjects.objects[i]->flags & TIGOR_GAME_OBJECT_FLAG_INIT))
@@ -54,7 +60,7 @@ void main_loop() {
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -63,9 +69,15 @@ void main_loop() {
             GameObjectDraw(engine.gameObjects.objects[i]);
         }
         
+        if(GUIManagerIsInit())
+            GUIManagerDraw();
+        
         engine.gameObjects.size = 0;
 
         SDL_GL_SwapWindow(window->instance);
+                
+        if(GUIManagerIsInit())
+            GUIManagerClear();
  }
 
 void EngineInit(){        
@@ -123,6 +135,7 @@ void TEngineInitSystem(int width, int height, const char* name){
     
     EngineInit();
             
+    GUIManagerInit(true);
     //memcpy(images[engine.DataR.e_var_num_images].path, text, strlen(text));
     engine.DataR.e_var_num_images ++;
 }
@@ -148,6 +161,11 @@ void TEngineDraw(GameObject *go){
 
     engine.gameObjects.objects[engine.gameObjects.size] = go;
     engine.gameObjects.size ++;
+}
+
+void TEngineSetFont(char *font_path){
+    
+    engine.DataR.font_path = font_path;
 }
 
 int TEngineGetMousePress(int Key){

@@ -34,7 +34,7 @@ const char *fragmentShaderSource =
       "void main()                                \n"
       "{                                          \n"
       "  vec4 color =  texture2D(u_texture, vTextureCoords); \n"
-      "  //color.rgb *=  vFragColor;                \n"
+      "  color.rgb *=  vFragColor;                \n"
       "  gl_FragColor = color;  \n"
       "}                                          \n";
 
@@ -69,7 +69,8 @@ void GameObject2DDefaultUpdate(GameObject2D* go) {
 void GameObject2DDefaultDraw(GameObject2D* go){
         
     for(int i=0; i < go->graphObj.num_shapes;i++){   
-        glBindVertexArrayOES(go->graphObj.shapes[i].VAO);        
+        glBindVertexArrayOES(go->graphObj.shapes[i].VAO);    
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, go->graphObj.shapes[i].iParam.buffer);    
         glDrawElements(GL_TRIANGLES, go->graphObj.shapes[i].iParam.indexesSize, GL_UNSIGNED_INT, 0);
 
     }

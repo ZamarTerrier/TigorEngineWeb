@@ -165,4 +165,9 @@ typedef struct{
 
 } TEngine;
 
+typedef struct{
+    uint32_t FindLetter;
+    uint16_t IndexLetter;
+} FontIndexes;
+
 #endif //ENGINEINCLUDES_H
