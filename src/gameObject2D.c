@@ -58,22 +58,28 @@ void GameObject2DDefaultUpdate(GameObject2D* go) {
         mat4 proj = m4_ortho(0, engine.width, engine.height, 0.0, -1.0, 1.0f);
         tMat = glGetUniformLocation(go->self.shaderProgram, "u_proj");
         glUniformMatrix4fv(tMat, 1, GL_FALSE, (const float*) &proj);
-                
-        if(go->image != NULL){
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, go->image->texture_id);
-        }
-        
+                        
+        glUseProgram(0);
 }
 
 void GameObject2DDefaultDraw(GameObject2D* go){
         
+    glUseProgram(go->self.shaderProgram);
+
+    if(go->image != NULL){
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, go->image->texture_id);
+    }
+
     for(int i=0; i < go->graphObj.num_shapes;i++){   
         glBindVertexArrayOES(go->graphObj.shapes[i].VAO);    
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, go->graphObj.shapes[i].iParam.buffer);    
         glDrawElements(GL_TRIANGLES, go->graphObj.shapes[i].iParam.indexesSize, GL_UNSIGNED_INT, 0);
 
     }
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glUseProgram(0);
 }
 
 void GameObject2DSetShader(GameObject2D *go, char *vert_source, char *frag_source){

@@ -97,12 +97,6 @@ void GUIAddCircle(vec2 center, float radius, vec3 col, int num_segments, float t
 
 void GUIAddCircleFilled(vec2 center, float radius, vec3 col, int num_segments){
 
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
-
     if (num_segments <= 0)
     {
         // Use arc with automatic segment count
@@ -111,9 +105,6 @@ void GUIAddCircleFilled(vec2 center, float radius, vec3 col, int num_segments){
     }
     else
     {
-        center.x *= engine.width;
-        center.y *= engine.height;
-
         // Explicit segment count (still clamp to avoid drawing insanely tessellated shapes)
         num_segments = clamp(num_segments, 3, GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
 

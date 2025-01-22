@@ -97,7 +97,6 @@ void EngineInit(){
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     engine.gl_context = SDL_GL_CreateContext(window->instance);
-    //SDL_CreateRenderer(engine.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     
 }
 
@@ -134,8 +133,10 @@ void TEngineInitSystem(int width, int height, const char* name){
     engine.gameObjects.curr_size = START_DRAW_OBJECTS;
     
     EngineInit();
-            
-    GUIManagerInit(true);
+           
+    if(!GUIManagerIsInit()){        
+        GUIManagerInit(true);
+    }
     //memcpy(images[engine.DataR.e_var_num_images].path, text, strlen(text));
     engine.DataR.e_var_num_images ++;
 }
@@ -166,6 +167,8 @@ void TEngineDraw(GameObject *go){
 void TEngineSetFont(char *font_path){
     
     engine.DataR.font_path = font_path;
+
+    GUIManagerInit(false);
 }
 
 int TEngineGetMousePress(int Key){

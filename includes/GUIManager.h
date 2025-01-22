@@ -55,6 +55,7 @@ typedef struct{
         uint32_t fontHeight;
         void *info;
         void *cdata;
+        void *charInfo;
         void *texture;
         uint32_t buffer;
         float fontSize;

@@ -30,7 +30,7 @@ const char *guiVertexShaderSource =
       "varying vec3 vFragColor;\n"
       "void main()                 \n"
       "{                           \n"
-      "   gl_Position = vec4(position, 0.0, 1.0); \n"
+      "   gl_Position = u_proj * u_view * vec4(position, 0.0, 1.0); \n"
       "   vTextureCoords = textCoord;\n"
       "   vFragColor = color;\n"
       "}                           \n";
@@ -44,8 +44,7 @@ const char *guiFragmentShaderSource =
       "void main()                                \n"
       "{                                          \n"
       "  vec4 color =  texture2D(u_texture, vTextureCoords); \n"
-      "  color.rgb *=  vFragColor;                \n"
-      "  gl_FragColor = color;  \n"
+      "  gl_FragColor = vec4(vFragColor, color.a); \n"
       "}                                          \n";
 
 
@@ -154,7 +153,7 @@ void _PathArcToFastEx(const vec2 center, float radius, int a_min_sample, int a_m
             if (sample_index >= GUI_DRAWLIST_ARCFAST_SAMPLE_MAX)
                 sample_index -= GUI_DRAWLIST_ARCFAST_SAMPLE_MAX;
 
-            const vec2 s = v2_div(ArcFastVtx[sample_index], vec2_f(engine.width, engine.height));
+            const vec2 s = ArcFastVtx[sample_index];
             gui._Path[gui._Path_Size].x = center.x + s.x * radius;
             gui._Path[gui._Path_Size].y = center.y + s.y * radius;
             gui._Path_Size ++;
@@ -168,7 +167,7 @@ void _PathArcToFastEx(const vec2 center, float radius, int a_min_sample, int a_m
             if (sample_index < 0)
                 sample_index += GUI_DRAWLIST_ARCFAST_SAMPLE_MAX;
 
-            const vec2 s = v2_div(ArcFastVtx[sample_index], vec2_f(engine.width, engine.height));
+            const vec2 s = ArcFastVtx[sample_index];
             gui._Path[gui._Path_Size].x = center.x + s.x * radius;
             gui._Path[gui._Path_Size].y = center.y + s.y * radius;            
             gui._Path_Size ++;
@@ -181,7 +180,7 @@ void _PathArcToFastEx(const vec2 center, float radius, int a_min_sample, int a_m
         if (normalized_max_sample < 0)
             normalized_max_sample += GUI_DRAWLIST_ARCFAST_SAMPLE_MAX;
 
-        const vec2 s = v2_div(ArcFastVtx[normalized_max_sample], vec2_f(engine.width, engine.height));
+        const vec2 s = ArcFastVtx[sample_index];
         gui._Path[gui._Path_Size].x = center.x + s.x * radius;
         gui._Path[gui._Path_Size].y = center.y + s.y * radius;        
         gui._Path_Size ++;
@@ -203,9 +202,7 @@ void _PathArcToN(const vec2 center, float radius, float a_min, float a_max, int 
     {
         const float a = a_min + ((float)i / (float)num_segments) * (a_max - a_min);
         
-        vec2 pos = vec2_f(center.x + cos(a) * radius, center.y + sin(a) * radius);
-        pos = v2_div(pos, vec2_f(engine.width, engine.height));
-        gui._Path[gui._Path_Size] = pos;
+        gui._Path[gui._Path_Size] = vec2_f(center.x + cos(a) * radius, center.y + sin(a) * radius);
         gui._Path_Size++;
     }
 }
@@ -245,17 +242,13 @@ void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int nu
         const bool a_emit_end = abs(a_max - a_max_segment_angle) >= 1e-5f;
 
         if (a_emit_start){
-            vec2 pos = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_min) * radius);
-            pos = v2_div(pos, vec2_f(engine.width, engine.height));
-            gui._Path[gui._Path_Size] = pos;
+            gui._Path[gui._Path_Size] = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_min) * radius);
             gui._Path_Size++;
         }
         if (a_mid_samples > 0)
             _PathArcToFastEx(center, radius, a_min_sample, a_max_sample, 0);
         if (a_emit_end){
-            vec2 pos = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_min) * radius);
-            pos = v2_div(pos, vec2_f(engine.width, engine.height));
-            gui._Path[gui._Path_Size] = pos;
+            gui._Path[gui._Path_Size] = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_min) * radius);
             gui._Path_Size++;
         }
     }
@@ -270,13 +263,6 @@ void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int nu
 
 void PathArcToFast(vec2 center, float radius, int a_min_of_12, int a_max_of_12)
 {
-    
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
-
     if (radius < 0.5f)
     {
         gui._Path[gui._Path_Size] = center;
@@ -298,7 +284,6 @@ void PathEllipticalArcTo(const vec2 center, const vec2 radius, float rot, float 
         const float a = a_min + ((float)i / (float)num_segments) * (a_max - a_min);
         vec2 point = {cos(a) * radius.x, sin(a) * radius.y};
         vec2 rel =  {(point.x * cos_rot) - (point.y * sin_rot), (point.x * sin_rot) + (point.y * cos_rot)};
-        rel = v2_div(rel, vec2_f(engine.width, engine.height));
         point.x = rel.x + center.x;
         point.y = rel.y + center.y;
         
@@ -373,6 +358,41 @@ void GUIManagerGetVertexCount(uint32_t *vertCount, uint32_t *indxCount){
     }
 }
 
+void MakeSomeQuad(Vertex2D *verts, uint32_t *tIndx){
+    verts[0].position.x = -1.0f;
+    verts[0].position.y = -1.0f;
+    verts[0].color = vec3_f(1, 1, 1);
+    verts[0].texCoord.x = 0;
+    verts[0].texCoord.y = 0;
+
+    verts[1].position.x =  1.0f;
+    verts[1].position.y = -1.0f;
+    verts[1].color = vec3_f(1, 1, 1);
+    verts[1].texCoord.x = 1.0f;
+    verts[1].texCoord.y = 0;
+
+    verts[2].position.x =  1.0f;
+    verts[2].position.y =  1.0f;
+    verts[2].color = vec3_f(1, 1, 1);
+    verts[2].texCoord.x = 1.0f;
+    verts[2].texCoord.y = 1.0f;
+
+    verts[3].position.x = -1.0f;
+    verts[3].position.y =  1.0f;
+    verts[3].color = vec3_f(1, 1, 1);
+    verts[3].texCoord.x = 0;
+    verts[3].texCoord.y = 1.0f;
+
+    gui.go.graphObj.shapes[0].vParam.num_verts += 4;
+
+    uint32_t indx[] = {
+      0, 1, 2, 2, 3, 0
+    };
+
+    memcpy(&tIndx, indx, 6 * sizeof(uint32_t));
+    gui.go.graphObj.shapes[0].iParam.indexesSize += 6;
+}
+
 void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
 
     ChildStack *child = gui.draw_list;
@@ -422,6 +442,8 @@ void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
 
         child = child->next;
     }
+
+    //MakeSomeQuad(dataV, dataI);
        
     glBindVertexArrayOES(gui.go.graphObj.shapes[0].VAO);
 
@@ -486,11 +508,12 @@ void GUIManagerInitFont(int default_font){
     gui.font.info = (stbtt_fontinfo *) AllocateMemory(1, sizeof(stbtt_fontinfo));
     gui.font.cdata = (stbtt_bakedchar *) AllocateMemory(1106, sizeof(stbtt_fontinfo));
     
-    uint8_t *temp_bitmap = AllocateMemory(gui.font.fontWidth * gui.font.fontHeight, sizeof(uint8_t));
-    
-    if(!default_font){
-        FILE *font = fopen(engine.DataR.font_path, "r");
+    uint8_t *temp_bitmap = AllocateMemory( gui.font.fontWidth *  gui.font.fontHeight, sizeof(uint8_t));
 
+    if(!default_font){
+        FILE *font = fopen(engine.DataR.font_path, "rb");
+
+        printf("Font name is : %s\n", engine.DataR.font_path);
 
         if(font){
             fseek(font, 0L, SEEK_END);
@@ -509,19 +532,26 @@ void GUIManagerInitFont(int default_font){
             fclose(font);
         }
     }else{
-        stbtt_InitFont(gui.font.info, RobotoBlack_ttf, stbtt_GetFontOffsetForIndex(RobotoBlack_ttf,0));
         stbtt_BakeFontBitmap(RobotoBlack_ttf, 0, 32.0, temp_bitmap, gui.font.fontWidth, gui.font.fontHeight, 0, 1106, gui.font.cdata); // no guarantee this fits!
     }
     
+    uint8_t *point = temp_bitmap;
+
+    vec2 TexUvScale = vec2_f(1.0f / gui.font.fontWidth, 1.0f / gui.font.fontHeight);
+
+    point[0] = point[1] = point[gui.font.fontWidth] = point[gui.font.fontWidth + 1] = 0xFF;
+
+    TexUvWhitePixel = vec2_f(0.5f * TexUvScale.x, 0.5f * TexUvScale.y);
+
+    uint32_t *temp_bitmap2 = AllocateMemory( gui.font.fontWidth *  gui.font.fontHeight, sizeof(uint32_t));       
+    
     glGenTextures(1, &gui.font.buffer);
     glBindTexture(GL_TEXTURE_2D, gui.font.buffer);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gui.font.fontWidth, gui.font.fontHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, temp_bitmap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, gui.font.fontWidth, gui.font.fontHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, temp_bitmap);
 
     free(temp_bitmap);
             
@@ -547,6 +577,9 @@ void GUIManagerInit(int default_font){
     memset(&gui, 0, sizeof(GUIManager));
     
     GameObject2DInit((GameObject2D *)&gui, TIGOR_GAME_OBJECT_TYPE_2D); 
+
+    gui.go.transform.scale.x = engine.width;
+    gui.go.transform.scale.y = engine.height;
 
     memcpy(gui.go.name, "GUI", 3);
 
@@ -598,24 +631,10 @@ void GUIManagerDrawPrimRect(vec2 a, vec2 c, vec3 color){
     if(gui.draw_list == NULL)
         gui.draw_list = calloc(1, sizeof(ChildStack));
 
-    a = v2_sub(a, vec2_f(engine.width, engine.height));
-    c = v2_sub(c, vec2_f(engine.width, engine.height));
-
     GUIObj *rect = GUIManagerAddObject();
 
     rect->indeces = calloc(6, sizeof(uint32_t));
     rect->points = calloc(4, sizeof(Vertex2D));
-
-    if(a.x != 0)
-        a.x /= engine.width;
-    if(a.y != 0)
-        a.y /= engine.height;
-
-        
-    if(c.x != 0)
-        c.x /= engine.width;
-    if(c.y != 0)
-        c.y /= engine.height;
 
     vec2 b = {c.x, a.y};
     vec2 d = {a.x, c.y};
@@ -672,12 +691,6 @@ void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec3 col, float roundi
 
 void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *text){
 
-    if(xpos != 0)
-        xpos /= engine.width;
-        
-    if(ypos != 0)
-        ypos /= engine.height;
-
     int len = ToolsStr32BitLength((uint32_t *)text);
 
     stbtt_aligned_quad q;
@@ -695,10 +708,10 @@ void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *t
     rect->points = calloc(len * 4, sizeof(Vertex2D));
     rect->indeces = calloc(len * 6, sizeof(uint32_t));
     
-    float mulX = font_size / engine.width / GUIFontResizer;
-    float mulY = font_size / engine.height / GUIFontResizer;
+    float mulX = font_size / GUIFontResizer;
+    float mulY = font_size / GUIFontResizer;
     
-    float temp = font_size / engine.height;
+    float temp = font_size;
 
     uint32_t v_iter = 0;
     uint32_t i_iter = 0;
@@ -1180,12 +1193,6 @@ void PathRect(vec2 a, vec2 b, float rounding, uint32_t flags){
 }
 
 void PathLineTo(vec2 pos)  { 
-
-    if(pos.x != 0) 
-        pos.x /= engine.width; 
-        
-    if(pos.y != 0) 
-        pos.y /= engine.height; 
         
     gui._Path[gui._Path_Size] = pos; 
     
@@ -1228,8 +1235,8 @@ int GUIManagerIsInit(){
 void GUIManagerUpdate(){    
     Camera2D* cam = (Camera2D*) engine.cam2D;    
         
-    // draw our first triangle
     glUseProgram(gui.go.self.shaderProgram);
+
 
     mat4 model = m4_transform2D(gui.go.transform.position, gui.go.transform.scale, gui.go.transform.rotation);
     unsigned int tMat = glGetUniformLocation(gui.go.self.shaderProgram, "u_model");
@@ -1243,8 +1250,8 @@ void GUIManagerUpdate(){
     tMat = glGetUniformLocation(gui.go.self.shaderProgram, "u_proj");
     glUniformMatrix4fv(tMat, 1, GL_FALSE, (const float*) &proj);
             
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gui.font.buffer);
+    
+    glUseProgram(0);
 }
 
 void GUIManagerDraw(){
@@ -1252,11 +1259,16 @@ void GUIManagerDraw(){
     if(GUIManagerObjCount() == 0)
         return;
     
+    glUseProgram(gui.go.self.shaderProgram);
+    
     uint32_t vCount, iCount;
 
     GUIManagerGetVertexCount(&vCount, &iCount);
 
     GUIManagerCopyVertex(vCount, iCount);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gui.font.buffer);
 
     for(int i=0; i < gui.go.graphObj.num_shapes;i++){   
         glBindVertexArrayOES(gui.go.graphObj.shapes[i].VAO); 
@@ -1264,6 +1276,9 @@ void GUIManagerDraw(){
         glDrawElements(GL_TRIANGLES, gui.go.graphObj.shapes[i].iParam.indexesSize, GL_UNSIGNED_INT, 0);
 
     }
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glUseProgram(0);
 }
 
 void GUIManagerRecreate(){
