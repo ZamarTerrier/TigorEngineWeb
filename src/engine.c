@@ -241,6 +241,21 @@ void TEngineGetWindowSize(int *width, int *height){
     *height = engine.height;
 }
 
+extern int _wManagerGetMousePressState(wManagerWindow *window);
+extern WebFinger *_wManagerGetFingerPressState(wManagerWindow *window);
+
+int TEngineGetMousePressState(){
+    TWindow *window = (TWindow *)engine.window;
+
+    return _wManagerGetMousePressState(window->e_window);
+}
+
+void *TEngineGetFingerPressState(){
+    TWindow *window = (TWindow *)engine.window;
+
+    return _wManagerGetFingerPressState(window->e_window);
+}
+
 void TEngineRender(){
     #ifdef __EMSCRIPTEN__
         emscripten_set_main_loop(main_loop, 0, true);

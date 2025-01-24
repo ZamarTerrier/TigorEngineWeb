@@ -405,18 +405,18 @@ void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
 
     GUIManagerGetVertexCount(&vertCount, &indxCount);
 
-    /*if(GUICurrVertexMaxCount < vertCount){
-        BuffersDestroyBuffer(&gui.vertBuffer);
-        BuffersDestroyBuffer(&gui.indxBuffer);
+    if(GUICurrVertexMaxCount < vertCount){
+        free(gui.go.graphObj.shapes[0].vParam.vertices);
+        free(gui.go.graphObj.shapes[0].iParam.indices);
 
         while(GUICurrVertexMaxCount < vertCount)
             GUICurrVertexMaxCount = GUICurrVertexMaxCount << 1;
 
         GUICurrIndexMaxCount =  GUICurrVertexMaxCount << 1;
         
-        BuffersCreate(sizeof(Vertex2D) * GUICurrVertexMaxCount, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.vertBuffer, TIGOR_BUFFER_ALLOCATE_VERTEX);
-        BuffersCreate(sizeof(uint32_t) * GUICurrIndexMaxCount, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.indxBuffer, TIGOR_BUFFER_ALLOCATE_INDEX);
-    }*/
+        gui.go.graphObj.shapes[0].vParam.vertices = AllocateMemory(GUICurrVertexMaxCount, sizeof(Vertex2D));
+        gui.go.graphObj.shapes[0].iParam.indices = AllocateMemory(GUICurrIndexMaxCount, sizeof(uint32_t));
+    }
 
    
     char *dataV = gui.go.graphObj.shapes[0].vParam.vertices;
@@ -425,8 +425,8 @@ void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
     gui.go.graphObj.shapes[0].vParam.num_verts = vertCount;
     gui.go.graphObj.shapes[0].iParam.indexesSize = indxCount;
 
-    memset(dataV, 0, sizeof(Vertex2D) * MAX_VERTEX_SIZE);
-    memset(dataI, 0, sizeof(uint32_t) * MAX_INDEX_SIZE);
+    memset(dataV, 0, GUICurrVertexMaxCount);
+    memset(dataI, 0, GUICurrIndexMaxCount);
 
     while(child != NULL){
         obj = child->node;
@@ -618,6 +618,9 @@ void GUIManagerInit(int default_font){
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); 
 
     glGenVertexArraysOES(0, NULL); 
+
+    GUICurrVertexMaxCount = MAX_VERTEX_SIZE;
+    GUICurrIndexMaxCount = MAX_INDEX_SIZE;
 
     gui.go.graphObj.num_shapes ++;
 
@@ -876,7 +879,7 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
     if (points_count < 2)
         return;
 
-    thickness /=100;
+    thickness /=10;
     
     const bool closed = (flags & GUIDrawFlags_Closed) != 0;
     const int count = closed ? points_count : points_count - 1; // The number of line segments we need to draw

@@ -48,6 +48,18 @@ void _wManagerGetCursorPosWeb(wManagerWindow *window, double* xpos, double* ypos
         *ypos = wManager->lastCursorPosY;
 }
 
+int _wManagerGetMousePressState(wManagerWindow *window){
+    wManagerWeb *wManager = (wManagerWeb *)window->WindowData;
+
+    return wManager->mMouseButtonDown;
+}
+
+WebFinger *_wManagerGetFingerPressState(wManagerWindow *window){
+    wManagerWeb *wManager = (wManagerWeb *)window->WindowData;
+
+    return wManager->fingers;
+}
+
 const char* _wManagerGetScancodeNameWeb(int scancode)
 {
     if (scancode < 0 || scancode > (KF_EXTENDED | 0xff))
@@ -76,6 +88,16 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
     int button, action;
     int dx, dy;
 
+    SDL_TouchFingerEvent *m;
+
+    
+    wManager->someFingerDown = false;
+
+    for(int i=0;i < 10;i++){
+        if(wManager->fingers[i].mFingerDown)
+            wManager->someFingerDown = true;
+    }
+
     switch (event.type)
     {
         case SDL_KEYDOWN:
@@ -98,12 +120,13 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
         	bool mouseWheelDown = (m->preciseY < 0.0);
         	//zoomEventMouse(mouseWheelDown, mMousePositionX, mMousePositionY);
             _wManagerInputScroll(window, 0.0, m->preciseY);
-        	break;
+
         }
+            break;
         case SDL_MOUSEMOTION: 
         {
             SDL_MouseMotionEvent *m = (SDL_MouseMotionEvent*)&event;
-            if (wManager->mMouseButtonDown && !wManager->mFingerDown){
+            if (wManager->mMouseButtonDown && !wManager->someFingerDown){
                   
                 dx = m->x;
                 dy = m->y;
@@ -111,15 +134,17 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
                 _wManagerInputCursorPos(window, ((wManagerWeb* )window->WindowData)->virtualCursorPosX + dx,
                                             ((wManagerWeb* )window->WindowData)->virtualCursorPosY + dy);
                                                  
-                ((wManagerWeb* )window->WindowData)->lastCursorPosX += dx;
-                ((wManagerWeb* )window->WindowData)->lastCursorPosY += dy;
+                ((wManagerWeb* )window->WindowData)->lastCursorPosX = dx;
+                ((wManagerWeb* )window->WindowData)->lastCursorPosY = dy;
+                
             }
-            break;
+
         }
+            break;
         case SDL_MOUSEBUTTONDOWN: 
         {
             SDL_MouseButtonEvent *m = (SDL_MouseButtonEvent*)&event;
-            if(!wManager->mFingerDown)
+            if(!wManager->someFingerDown)
             {
                 switch(m->button){
                     case SDL_BUTTON_LEFT:
@@ -141,45 +166,51 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
                 _wManagerInputMouseClick(window, button, action, getKeyMods());
             }
         }
+        break;
 
         case SDL_MOUSEBUTTONUP: 
         {
             SDL_MouseButtonEvent *m = (SDL_MouseButtonEvent*)&event;
+            if(!wManager->someFingerDown)
+            {
             
-            switch(m->button){
-                case SDL_BUTTON_LEFT:
-                    button = TIGOR_MOUSE_BUTTON_LEFT;
-                    wManager->mMouseButtonDown = false; 
-                    break;
-                case SDL_BUTTON_MIDDLE:
-                    button = TIGOR_MOUSE_BUTTON_MIDDLE;
-                    break;
-                case SDL_BUTTON_RIGHT:
-                    button = TIGOR_MOUSE_BUTTON_RIGHT;
-                    break;
-            }
-            
-            action = TIGOR_RELEASE;
-                
-            _wManagerInputMouseClick(window, button, action, getKeyMods());
-        }
-        case SDL_FINGERDOWN:
-            // Finger already down means multiple fingers, which is handled by multigesture event
-                if (wManager->mFingerDown)
-                    wManager->mFingerDown = false;
-                else
-                {
-                    SDL_TouchFingerEvent *m = (SDL_TouchFingerEvent*)&event;
-
-                    wManager->mFingerDown = true;
-                    wManager->mFingerDownX = m->x;
-                    wManager->mFingerDownY = m->y;
-                    wManager->mFingerDownId = m->fingerId;
-                    //mCamera.setBasePan();
+                switch(m->button){
+                    case SDL_BUTTON_LEFT:
+                        button = TIGOR_MOUSE_BUTTON_LEFT;
+                        wManager->mMouseButtonDown = false; 
+                        break;
+                    case SDL_BUTTON_MIDDLE:
+                        button = TIGOR_MOUSE_BUTTON_MIDDLE;
+                        break;
+                    case SDL_BUTTON_RIGHT:
+                        button = TIGOR_MOUSE_BUTTON_RIGHT;
+                        break;
                 }
+                
+                action = TIGOR_RELEASE;
+                    
+                _wManagerInputMouseClick(window, button, action, getKeyMods());
+            }
+        }
+            break;
+        case SDL_FINGERMOTION:
+            m = (SDL_TouchFingerEvent *)&event;
+
+            wManager->fingers[event.tfinger.fingerId%10].mFingerDownX = m->x;
+            wManager->fingers[event.tfinger.fingerId%10].mFingerDownY = m->y;
+            break;
+        case SDL_FINGERDOWN:
+            m = (SDL_TouchFingerEvent *)&event;
+            wManager->someFingerDown = true;
+
+            wManager->fingers[event.tfinger.fingerId%10].mFingerDown = true;
+            wManager->fingers[event.tfinger.fingerId%10].mFingerDownX = m->x;
+            wManager->fingers[event.tfinger.fingerId%10].mFingerDownY = m->y;
+            //mCamera.setBasePan();
             break;            
         case SDL_FINGERUP:
-            wManager->mFingerDown = false;
+            m = (SDL_TouchFingerEvent *)&event;
+            wManager->fingers[event.tfinger.fingerId%10].mFingerDown = false;
             break;
 
     }

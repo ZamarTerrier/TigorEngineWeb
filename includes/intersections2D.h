@@ -25,6 +25,7 @@ int IntersectLineToLine(vec2 a, vec2 b, vec2 c, vec2 d, float *t, vec2 *p);
 int IntersectionCircleTriangle(vec2 sPos, float r, vec2 p0, vec2 p1, vec2 p2, vec2 *resPos, float *dist, float *depth, vec2 *dir);
 int IntersectionCircleCircle(InterCircleParam *o1, InterCircleParam *o2, float *dist, float *depth, vec2 *dir);
 int IntersectionCircleSquare(InterCircleParam *sph, InterSquareParam *box, float *dist, float *depth, vec2 *dir);
+int IntersectionSquareSquareL(InterSquareParam *box1, InterSquareParam *box2);
 int IntersectionSquareSquare(InterSquareParam *box1, InterSquareParam *box2, float *dist, float *depth, vec2 *dir);
 Manfloid2D IntersectionSquareOOBSquareOOB(void *sq1, void *sq2);
 int IntersectionTriangleSquare(InterTriangleParam triangle, InterSquareParam *box);

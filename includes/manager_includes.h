@@ -16,6 +16,12 @@ typedef const uint8_t* (APIENTRY * PFNGLGETSTRINGIPROC)(uint32_t,uint32_t);
 
 typedef struct wManagerWindow wManagerWindow;
 
+typedef struct{
+        // Finger input
+        bool mFingerDown;
+        double mFingerDownX, mFingerDownY;
+} WebFinger;
+
 typedef struct wManagerImage
 {
     /*! The width, in pixels, of this image.

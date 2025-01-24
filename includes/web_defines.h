@@ -19,11 +19,10 @@ typedef struct{
 
         bool mMouseButtonDown;
         double mMouseButtonDownX, mMouseButtonDownY;
+
+        WebFinger fingers[10];
         
-        // Finger input
-        bool mFingerDown;
-        double mFingerDownX, mFingerDownY;
-        long long mFingerDownId;
+        bool someFingerDown;
                 
 } wManagerWeb;
 

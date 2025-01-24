@@ -31,7 +31,6 @@ typedef void (*wManagerWindowSizeFunc)(wManagerWindow *window, int32_t width, in
 typedef void (*wManagerWindowContentScaleFun)(wManagerWindow* window, float xscale, float yscale);
 typedef void (*wManagerFrameBufferSizeFun)(wManagerWindow* window, int32_t width, int32_t height);
 
-
 typedef struct wManagerWindow{
 
     _wManagerPlatform platform;

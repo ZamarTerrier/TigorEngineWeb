@@ -421,6 +421,22 @@ int IntersectionCircleSquare(InterCircleParam *circle, InterSquareParam *quad, f
 
 }
 
+int IntersectionSquareSquareL(InterSquareParam *box1, InterSquareParam *box2)
+{
+    vec2 min1 = {box1->position.x - box1->size.x, box1->position.y - box1->size.y};
+    vec2 max1 = {box1->position.x + box1->size.x, box1->position.y + box1->size.y};
+
+    vec2 min2 = {box2->position.x - box2->size.x, box2->position.y - box2->size.y};
+    vec2 max2 = {box2->position.x + box2->size.x, box2->position.y + box2->size.y};
+
+    vec2 v = v2_sub(box2->position, box1->position);
+
+    if (max1.x < min2.x || min1.x > max2.x) return 0;
+    if (max1.y < min2.y || min1.y > max2.y) return 0;
+
+    return 1;
+}
+
 int IntersectionSquareSquare(InterSquareParam *box1, InterSquareParam *box2, float *dist, float *depth, vec2 *dir)
 {
     vec2 min1 = {box1->position.x - box1->size.x, box1->position.y - box1->size.y};

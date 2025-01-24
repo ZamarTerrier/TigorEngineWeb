@@ -29,6 +29,8 @@ void TEngineGetCursorPos(double *xpos, double *ypos);
 void TEngineSetCursorPos(float xpos, float ypos);
 int TEngineGetKeyPress(int Key);
 void TEngineGetWindowSize(int *width, int *height);
+int TEngineGetMousePressState();
+void *TEngineGetFingerPressState();
 
 #ifdef __cplusplus
 }
