@@ -9,4 +9,10 @@ typedef struct {
     vec2 texCoord;
 } Vertex2D;
 
+typedef struct {
+    vec2 position;
+    vec4 color;
+    vec2 texCoord;
+} Vertex2DGUI;
+
 #endif // E_VERTEX_H

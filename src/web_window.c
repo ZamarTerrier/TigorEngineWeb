@@ -126,7 +126,8 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
         case SDL_MOUSEMOTION: 
         {
             SDL_MouseMotionEvent *m = (SDL_MouseMotionEvent*)&event;
-            if (wManager->mMouseButtonDown && !wManager->someFingerDown){
+            if ((wManager->mMouseButtonDown) && !wManager->someFingerDown)
+            {
                   
                 dx = m->x;
                 dy = m->y;

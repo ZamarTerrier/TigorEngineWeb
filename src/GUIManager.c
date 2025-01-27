@@ -21,13 +21,13 @@
 
 const char *guiVertexShaderSource = 
       "attribute vec2 position;   \n"
-      "attribute vec3 color;   \n"
+      "attribute vec4 color;   \n"
       "attribute vec2 textCoord;\n"
       "uniform mat4 u_model; \n"
       "uniform mat4 u_view; \n"
       "uniform mat4 u_proj; \n"
       "varying vec2 vTextureCoords;\n"
-      "varying vec3 vFragColor;\n"
+      "varying vec4 vFragColor;\n"
       "void main()                 \n"
       "{                           \n"
       "   gl_Position = u_proj * u_view * vec4(position, 0.0, 1.0); \n"
@@ -40,11 +40,11 @@ const char *guiFragmentShaderSource =
 #endif
       "uniform sampler2D u_texture;\n"
       "varying vec2 vTextureCoords;\n"
-      "varying vec3 vFragColor;\n"
+      "varying vec4 vFragColor;\n"
       "void main()                                \n"
       "{                                          \n"
       "  vec4 color =  texture2D(u_texture, vTextureCoords); \n"
-      "  gl_FragColor = vec4(vFragColor, color.a); \n"
+      "  gl_FragColor = vec4(vFragColor.rgb, color.a * vFragColor.a); \n"
       "}                                          \n";
 
 
@@ -358,41 +358,6 @@ void GUIManagerGetVertexCount(uint32_t *vertCount, uint32_t *indxCount){
     }
 }
 
-void MakeSomeQuad(Vertex2D *verts, uint32_t *tIndx){
-    verts[0].position.x = -1.0f;
-    verts[0].position.y = -1.0f;
-    verts[0].color = vec3_f(1, 1, 1);
-    verts[0].texCoord.x = 0;
-    verts[0].texCoord.y = 0;
-
-    verts[1].position.x =  1.0f;
-    verts[1].position.y = -1.0f;
-    verts[1].color = vec3_f(1, 1, 1);
-    verts[1].texCoord.x = 1.0f;
-    verts[1].texCoord.y = 0;
-
-    verts[2].position.x =  1.0f;
-    verts[2].position.y =  1.0f;
-    verts[2].color = vec3_f(1, 1, 1);
-    verts[2].texCoord.x = 1.0f;
-    verts[2].texCoord.y = 1.0f;
-
-    verts[3].position.x = -1.0f;
-    verts[3].position.y =  1.0f;
-    verts[3].color = vec3_f(1, 1, 1);
-    verts[3].texCoord.x = 0;
-    verts[3].texCoord.y = 1.0f;
-
-    gui.go.graphObj.shapes[0].vParam.num_verts += 4;
-
-    uint32_t indx[] = {
-      0, 1, 2, 2, 3, 0
-    };
-
-    memcpy(&tIndx, indx, 6 * sizeof(uint32_t));
-    gui.go.graphObj.shapes[0].iParam.indexesSize += 6;
-}
-
 void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
 
     ChildStack *child = gui.draw_list;
@@ -414,7 +379,7 @@ void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
 
         GUICurrIndexMaxCount =  GUICurrVertexMaxCount << 1;
         
-        gui.go.graphObj.shapes[0].vParam.vertices = AllocateMemory(GUICurrVertexMaxCount, sizeof(Vertex2D));
+        gui.go.graphObj.shapes[0].vParam.vertices = AllocateMemory(GUICurrVertexMaxCount, sizeof(Vertex2DGUI));
         gui.go.graphObj.shapes[0].iParam.indices = AllocateMemory(GUICurrIndexMaxCount, sizeof(uint32_t));
     }
 
@@ -433,33 +398,31 @@ void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
 
         if(obj != NULL){
             
-            memcpy(dataV, obj->points, (size_t) sizeof(Vertex2D) * obj->vert_count);
+            memcpy(dataV, obj->points, (size_t) sizeof(Vertex2DGUI) * obj->vert_count);
             memcpy(dataI, obj->indeces, (size_t) sizeof(uint32_t) * obj->indx_count);
 
-            dataV += sizeof(Vertex2D) * obj->vert_count;
+            dataV += sizeof(Vertex2DGUI) * obj->vert_count;
             dataI += sizeof(uint32_t) * obj->indx_count;
         }
 
         child = child->next;
     }
-
-    //MakeSomeQuad(dataV, dataI);
        
     glBindVertexArrayOES(gui.go.graphObj.shapes[0].VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, gui.go.graphObj.shapes[0].vParam.buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * gui.go.graphObj.shapes[0].vParam.num_verts, gui.go.graphObj.shapes[0].vParam.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2DGUI) * gui.go.graphObj.shapes[0].vParam.num_verts, gui.go.graphObj.shapes[0].vParam.vertices, GL_STATIC_DRAW);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gui.go.graphObj.shapes[0].iParam.buffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * gui.go.graphObj.shapes[0].iParam.indexesSize, gui.go.graphObj.shapes[0].iParam.indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -591,7 +554,7 @@ void GUIManagerInit(int default_font){
 
     ////---------------------------------------------------------
 
-    gui.go.graphObj.shapes[0].vParam.vertices = AllocateMemory(MAX_VERTEX_SIZE, sizeof(Vertex2D));
+    gui.go.graphObj.shapes[0].vParam.vertices = AllocateMemory(MAX_VERTEX_SIZE, sizeof(Vertex2DGUI));
     gui.go.graphObj.shapes[0].iParam.indices = AllocateMemory(MAX_INDEX_SIZE, sizeof(uint32_t));
     
     glGenVertexArraysOES(1, &gui.go.graphObj.shapes[0].VAO);
@@ -600,18 +563,18 @@ void GUIManagerInit(int default_font){
     glBindVertexArrayOES(gui.go.graphObj.shapes[0].VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, gui.go.graphObj.shapes[0].vParam.buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * gui.go.graphObj.shapes[0].vParam.num_verts, gui.go.graphObj.shapes[0].vParam.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2DGUI) * gui.go.graphObj.shapes[0].vParam.num_verts, gui.go.graphObj.shapes[0].vParam.vertices, GL_STATIC_DRAW);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gui.go.graphObj.shapes[0].iParam.buffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * gui.go.graphObj.shapes[0].iParam.indexesSize, gui.go.graphObj.shapes[0].iParam.indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
@@ -629,7 +592,7 @@ void GUIManagerInit(int default_font){
     GameObject2DInitDraw((GameObject2D *)&gui);
 }
 
-void GUIManagerDrawPrimRect(vec2 a, vec2 c, vec3 color){
+void GUIManagerDrawPrimRect(vec2 a, vec2 c, vec4 color){
 
     if(gui.draw_list == NULL)
         gui.draw_list = calloc(1, sizeof(ChildStack));
@@ -637,7 +600,7 @@ void GUIManagerDrawPrimRect(vec2 a, vec2 c, vec3 color){
     GUIObj *rect = GUIManagerAddObject();
 
     rect->indeces = calloc(6, sizeof(uint32_t));
-    rect->points = calloc(4, sizeof(Vertex2D));
+    rect->points = calloc(4, sizeof(Vertex2DGUI));
 
     vec2 b = {c.x, a.y};
     vec2 d = {a.x, c.y};
@@ -661,7 +624,7 @@ void GUIManagerDrawPrimRect(vec2 a, vec2 c, vec3 color){
     gui.currIndx += 4;
 }
 
-void GUIManagerDrawRect(vec2 a, vec2 c, vec3 color){
+void GUIManagerDrawRect(vec2 a, vec2 c, vec4 color){
 
     double xpos, ypos;
 
@@ -671,7 +634,7 @@ void GUIManagerDrawRect(vec2 a, vec2 c, vec3 color){
     ypos *= 2;
 
     if(a.x < xpos && c.x > xpos && a.y < ypos && c.y > ypos && TEngineGetMousePress(TIGOR_MOUSE_BUTTON_1) && !gui.sellected){
-        color = v3_subs(color, 0.1);
+        color = v4_subs(color, 0.1);
         gui.sellected =true;
     }
 
@@ -679,7 +642,7 @@ void GUIManagerDrawRect(vec2 a, vec2 c, vec3 color){
 
 }
 
-void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec3 col, float rounding, uint32_t flags)
+void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec4 col, float rounding, uint32_t flags)
 {
     if (rounding < 0.5f)
     {
@@ -692,7 +655,7 @@ void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec3 col, float roundi
     }
 }
 
-void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *text){
+void GUISetText(float xpos, float ypos, vec4 color, float font_size, uint32_t *text){
 
     int len = ToolsStr32BitLength((uint32_t *)text);
 
@@ -708,7 +671,7 @@ void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *t
 
     uint32_t *tempI = text;
 
-    rect->points = calloc(len * 4, sizeof(Vertex2D));
+    rect->points = calloc(len * 4, sizeof(Vertex2DGUI));
     rect->indeces = calloc(len * 6, sizeof(uint32_t));
     
     float mulX = font_size / GUIFontResizer;
@@ -751,7 +714,7 @@ void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *t
     rect->vert_count = v_iter;
 }
 
-void GUIAddTextU8(float xpos, float ypos, vec3 color, float font_size, char *text){
+void GUIAddTextU8(float xpos, float ypos, vec4 color, float font_size, char *text){
 
     if(!GUIManagerIsInit())
         return;
@@ -767,7 +730,7 @@ void GUIAddTextU8(float xpos, float ypos, vec3 color, float font_size, char *tex
     GUIAddTextU32(xpos, ypos, color, font_size, buff);
 }
 
-void GUIAddTextU32(float xpos, float ypos, vec3 color, float font_size, uint32_t *text){
+void GUIAddTextU32(float xpos, float ypos, vec4 color, float font_size, uint32_t *text){
     
     if(!GUIManagerIsInit())
         return;
@@ -775,7 +738,7 @@ void GUIAddTextU32(float xpos, float ypos, vec3 color, float font_size, uint32_t
     GUISetText(xpos, ypos, color, font_size, text);
 }
 
-void AddConvexPolyFilled(const vec2 *points, const int points_count, vec3 col)
+void AddConvexPolyFilled(const vec2 *points, const int points_count, vec4 col)
 {
 
     if (points_count < 3)
@@ -854,7 +817,7 @@ void AddConvexPolyFilled(const vec2 *points, const int points_count, vec3 col)
         
         
         rect->indeces = calloc(idx_count, sizeof(uint32_t));
-        rect->points = calloc(vtx_count, sizeof(Vertex2D));
+        rect->points = calloc(vtx_count, sizeof(Vertex2DGUI));
 
         for (int i = 0; i < vtx_count; i++)
         {
@@ -874,7 +837,7 @@ void AddConvexPolyFilled(const vec2 *points, const int points_count, vec3 col)
     }
 }
 
-void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, DrawListFlags flags, float thickness){
+void GUIManagerAddPolyline(const vec2* points, int points_count, vec4 color, DrawListFlags flags, float thickness){
 
     if (points_count < 2)
         return;
@@ -893,7 +856,7 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
     GUIObj *rect = GUIManagerAddObject();
 
     rect->indeces = calloc(count * 6, sizeof(uint32_t));
-    rect->points = calloc(count * 4, sizeof(Vertex2D));
+    rect->points = calloc(count * 4, sizeof(Vertex2DGUI));
 
     uint32_t v_iter = 0;
     uint32_t i_iter = 0;
@@ -1203,7 +1166,7 @@ void PathLineTo(vec2 pos)  {
 
 }
 
-void PathFillConvex(vec3 col){ 
+void PathFillConvex(vec4 col){ 
     
     if(!GUIManagerIsInit()){
         memset(gui._Path, 0, sizeof(vec2) * 32);
@@ -1217,7 +1180,7 @@ void PathFillConvex(vec3 col){
     gui._Path_Size = 0; 
 }
 
-void PathStroke(vec3 color, uint32_t flags, float thickness) { 
+void PathStroke(vec4 color, uint32_t flags, float thickness) { 
     
     if(!GUIManagerIsInit()){
         memset(gui._Path, 0, sizeof(vec2) * 32);

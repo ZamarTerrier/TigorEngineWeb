@@ -89,7 +89,9 @@ float v3_point_tri_dist(const vec3 *P, const vec3 *x0, const vec3 *B, const vec3
 vec4 vec4_f(float x, float y, float z, float w);
 
 vec4  v4_add(vec4 a, vec4 b) ;
+vec4  v4_adds(vec4 a, float b) ;
 vec4  v4_sub(vec4 a, vec4 b) ;
+vec4  v4_subs(vec4 a, float b) ;
 vec4  v4_mul (vec4 a, vec4 b);
 vec4  v4_muls (vec4 a, float s);
 vec4  v4_mad(vec4 a, vec4 b, float c);

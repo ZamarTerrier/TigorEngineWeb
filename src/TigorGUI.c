@@ -24,21 +24,21 @@ extern void _PathArcToFastEx(const vec2 center, float radius, int a_min_sample, 
 extern void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int num_segments);
 extern int _CalcCircleAutoSegmentCount(float radius);
 
-void GUIAddLine(const vec2 p1, const vec2 p2, vec3 col, float thickness)
+void GUIAddLine(const vec2 p1, const vec2 p2, vec4 col, float thickness)
 {
     PathLineTo(v2_add(p1, vec2_f(0.5f, 0.5f)));
     PathLineTo(v2_add(p2, vec2_f(0.5f, 0.5f)));
     PathStroke(col, 0, thickness);
 }
 
-void GUIAddRect(const vec2 p_min, const vec2 p_max, vec3 col, float rounding, uint32_t flags, float thickness)
+void GUIAddRect(const vec2 p_min, const vec2 p_max, vec4 col, float rounding, uint32_t flags, float thickness)
 {
     PathRect(v2_add(p_min, vec2_f(0.50f, 0.50f)), v2_sub(p_max, vec2_f(0.49f, 0.49f)), rounding, flags); // Better looking lower-right corner and rounded non-AA shapes.
 
     PathStroke(col, GUIDrawFlags_Closed, thickness);
 }
 
-void GUIAddQuad(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec3 col, float thickness){
+void GUIAddQuad(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec4 col, float thickness){
     PathLineTo(p1);
     PathLineTo(p2);
     PathLineTo(p3);
@@ -46,7 +46,7 @@ void GUIAddQuad(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec3
     PathStroke(col, GUIDrawFlags_Closed, thickness);
 }
 
-void GUIAddQuadFilled(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec3 col){
+void GUIAddQuadFilled(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec4 col){
     PathLineTo(p1);
     PathLineTo(p2);
     PathLineTo(p3);
@@ -54,21 +54,21 @@ void GUIAddQuadFilled(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4
     PathFillConvex(col);
 }
 
-void GUIAddTriangle(const vec2 p1, const vec2 p2, const vec2 p3, vec3 col, float thickness){
+void GUIAddTriangle(const vec2 p1, const vec2 p2, const vec2 p3, vec4 col, float thickness){
     PathLineTo(p1);
     PathLineTo(p2);
     PathLineTo(p3);
     PathStroke(col, GUIDrawFlags_Closed, thickness);
 }
 
-void GUIAddTriangleFilled(const vec2 p1, const vec2 p2, const vec2 p3, vec3 col){
+void GUIAddTriangleFilled(const vec2 p1, const vec2 p2, const vec2 p3, vec4 col){
     PathLineTo(p1);
     PathLineTo(p2);
     PathLineTo(p3);
     PathFillConvex(col);
 }
 
-void GUIAddCircle(vec2 center, float radius, vec3 col, int num_segments, float thickness){
+void GUIAddCircle(vec2 center, float radius, vec4 col, int num_segments, float thickness){
 
     if(center.x != 0) 
         center.x /= engine.width; 
@@ -95,7 +95,7 @@ void GUIAddCircle(vec2 center, float radius, vec3 col, int num_segments, float t
     PathStroke(col, GUIDrawFlags_Closed, thickness);
 }
 
-void GUIAddCircleFilled(vec2 center, float radius, vec3 col, int num_segments){
+void GUIAddCircleFilled(vec2 center, float radius, vec4 col, int num_segments){
 
     if (num_segments <= 0)
     {
@@ -116,7 +116,7 @@ void GUIAddCircleFilled(vec2 center, float radius, vec3 col, int num_segments){
     PathFillConvex(col);
 }
 
-void GUIAddNgon(vec2 center, float radius, vec3 col, int num_segments, float thickness){
+void GUIAddNgon(vec2 center, float radius, vec4 col, int num_segments, float thickness){
 
     if(center.x != 0) 
         center.x /= engine.width; 
@@ -130,7 +130,7 @@ void GUIAddNgon(vec2 center, float radius, vec3 col, int num_segments, float thi
     PathStroke(col, GUIDrawFlags_Closed, thickness);
 }
 
-void GUIAddNgonFilled(vec2 center, float radius, vec3 col, int num_segments){
+void GUIAddNgonFilled(vec2 center, float radius, vec4 col, int num_segments){
 
     if(center.x != 0) 
         center.x /= engine.width; 
@@ -144,7 +144,7 @@ void GUIAddNgonFilled(vec2 center, float radius, vec3 col, int num_segments){
     PathFillConvex(col);
 }
 
-void GUIAddEllipse(vec2 center, const vec2 radius, vec3 col, float rot, int num_segments, float thickness){
+void GUIAddEllipse(vec2 center, const vec2 radius, vec4 col, float rot, int num_segments, float thickness){
 
     if(center.x != 0) 
         center.x /= engine.width; 
@@ -161,7 +161,7 @@ void GUIAddEllipse(vec2 center, const vec2 radius, vec3 col, float rot, int num_
     PathStroke(col, true, thickness);
 }
 
-void GUIAddEllipseFilled(vec2 center, const vec2 radius, vec3 col, float rot, int num_segments){
+void GUIAddEllipseFilled(vec2 center, const vec2 radius, vec4 col, float rot, int num_segments){
     
     if (num_segments <= 0)
         num_segments = _CalcCircleAutoSegmentCount(e_max(radius.x, radius.y)); // A bit pessimistic, maybe there's a better computation to do here.
