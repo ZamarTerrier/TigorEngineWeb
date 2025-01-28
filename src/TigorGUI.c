@@ -70,16 +70,10 @@ void GUIAddTriangleFilled(const vec2 p1, const vec2 p2, const vec2 p3, vec4 col)
 
 void GUIAddCircle(vec2 center, float radius, vec4 col, int num_segments, float thickness){
 
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
-
     if (num_segments <= 0)
     {
         // Use arc with automatic segment count
-        _PathArcToFastEx(center, radius - 0.5f, 0, GUI_DRAWLIST_ARCFAST_SAMPLE_MAX, 0);
+        _PathArcToFastEx(center, radius, 0, GUI_DRAWLIST_ARCFAST_SAMPLE_MAX, 0);
         gui._Path_Size--;
     }
     else
@@ -117,13 +111,6 @@ void GUIAddCircleFilled(vec2 center, float radius, vec4 col, int num_segments){
 }
 
 void GUIAddNgon(vec2 center, float radius, vec4 col, int num_segments, float thickness){
-
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
-
     // Because we are filling a closed shape we remove 1 from the count of segments/points
     const float a_max = (M_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
     PathArcTo(center, radius - 0.5f, 0.0f, a_max, num_segments - 1);
@@ -131,13 +118,6 @@ void GUIAddNgon(vec2 center, float radius, vec4 col, int num_segments, float thi
 }
 
 void GUIAddNgonFilled(vec2 center, float radius, vec4 col, int num_segments){
-
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
-
     // Because we are filling a closed shape we remove 1 from the count of segments/points
     const float a_max = (M_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
     PathArcTo(center, radius, 0.0f, a_max, num_segments - 1);
@@ -145,12 +125,6 @@ void GUIAddNgonFilled(vec2 center, float radius, vec4 col, int num_segments){
 }
 
 void GUIAddEllipse(vec2 center, const vec2 radius, vec4 col, float rot, int num_segments, float thickness){
-
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
 
     if (num_segments <= 0)
         num_segments = _CalcCircleAutoSegmentCount(e_max(radius.x, radius.y)); // A bit pessimistic, maybe there's a better computation to do here.
