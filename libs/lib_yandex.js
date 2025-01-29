@@ -15,26 +15,26 @@ let LisGamesSDKLib = {
 //#region Features
 
 JS_LoadingAPI_Ready: function () {
-  if (window.ysdk.features.LoadingAPI) {
-    window.ysdk.features.LoadingAPI.ready();
+  if (window.ysdk?.features.LoadingAPI) {
+    window.ysdk?.features.LoadingAPI.ready();
   }
 },
 
 JS_GameplayAPI_Start: function () {
-  if (window.ysdk.features.GameplayAPI) {
-    window.ysdk.features.GameplayAPI.start();
+  if (window.ysdk?.features.GameplayAPI) {
+    window.ysdk?.features.GameplayAPI.start();
   }
 },
 
 JS_GameplayAPI_Stop: function () {
-  if (window.ysdk.features.GameplayAPI) {
-    window.ysdk.features.GameplayAPI.stop();
+  if (window.ysdk?.features.GameplayAPI) {
+    window.ysdk?.features.GameplayAPI.stop();
   }
 },
 
 JS_GamesAPI_GetAllGames: function (handler) {
-  if (window.ysdk.features.GamesAPI) {
-    window.ysdk.features.GamesAPI.getAllGames()
+  if (window.ysdk?.features.GamesAPI) {
+    window.ysdk?.features.GamesAPI.getAllGames()
       .then(function (result) {
         {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(result))
       })
@@ -45,8 +45,8 @@ JS_GamesAPI_GetAllGames: function (handler) {
 },
 
 JS_GamesAPI_GetGameByID: function (handler, id) {
-  if (window.ysdk.features.GamesAPI) {
-    window.ysdk.features.GamesAPI.getGameByID(id)
+  if (window.ysdk?.features.GamesAPI) {
+    window.ysdk?.features.GamesAPI.getGameByID(id)
       .then(function (result) {
         {{{ makeDynCall('vii', 'handler') }}}(1, YGTigor.allocateJSON(result))
       })
@@ -63,7 +63,7 @@ JS_GamesAPI_GetGameByID: function (handler, id) {
 JS_CreatePurchase: function (handler, cparams) {
   const params = JSON.parse(UTF8ToString(cparams));
 
-  window.ysdk.getPayments({ signed: params.signed ?? false })
+  window.ysdk?.getPayments({ signed: params.signed ?? false })
     .then(function (payments) {
       return payments.purchase({ 
         id: params.id,
@@ -87,7 +87,7 @@ JS_CreatePurchase: function (handler, cparams) {
 JS_GetPurchases: function (handler, cparams) {
   const params = JSON.parse(UTF8ToString(cparams));
 
-  window.ysdk.getPayments({ signed: params.signed ?? false })
+  window.ysdk?.getPayments({ signed: params.signed ?? false })
     .then(function (payments) {
       return payments.getPurchases();
     })
@@ -108,7 +108,7 @@ JS_GetPurchases: function (handler, cparams) {
 },
 
 JS_GetCatalog: function (handler) {
-  window.ysdk.getPayments()
+  window.ysdk?.getPayments()
     .then(function (payments) {
       return payments.getCatalog();
     })
@@ -139,7 +139,7 @@ JS_GetCatalog: function (handler) {
 JS_ConsumePurchase: function (handler, cpurchaseToken) {
   const purchaseToken = UTF8ToString(cpurchaseToken);
 
-  window.ysdk.getPayments()
+  window.ysdk?.getPayments()
     .then(function (payments) {
       return payments.consumePurchase(purchaseToken);
     }).then(function () {
@@ -156,7 +156,7 @@ JS_ConsumePurchase: function (handler, cpurchaseToken) {
 JS_GetPlayerInfo: function (handler, cparams) {    
   const params = cparams ? JSON.parse(UTF8ToString(cparams)) : undefined;
 
-  window.ysdk.getPlayer({
+  window.ysdk?.getPlayer({
     signed: params?.signed ?? false,
     scopes: params?.scopes ?? false
   })
@@ -183,7 +183,7 @@ JS_GetPlayerInfo: function (handler, cparams) {
 },
 
 JS_OpenAuthDialog: function (handler) {
-  window.ysdk.auth.openAuthDialog()
+  window.ysdk?.auth.openAuthDialog()
     .then(function () {
       {{{ makeDynCall('vi', 'handler') }}}(1)
     })
@@ -193,9 +193,9 @@ JS_OpenAuthDialog: function (handler) {
 },
 
 JS_GetPlayerIDsPerGame: function (handler) {
-  window.ysdk.isAvailableMethod('player.getIDsPerGame').then(function (available) {
+  window.ysdk?.isAvailableMethod('player.getIDsPerGame').then(function (available) {
     if (available) {
-      window.ysdk.getPlayer()
+      window.ysdk?.getPlayer()
         .then(function (player) {
           return player.getIDsPerGame();
         })
@@ -231,7 +231,7 @@ JS_GetPlayerData: function (handler, ckeys) {
     keys = JSON.parse(UTF8ToString(ckeys));
   }
   
-  window.ysdk.getPlayer()
+  window.ysdk?.getPlayer()
     .then(function (player) {
       return player.getData(keys);
     })
@@ -326,10 +326,10 @@ JS_RequestReview: function (handler) {
 
 JS_GetEnvironment: function () {
   const environment = {
-    app: window.ysdk.environment.app,
-    browser: window.ysdk.environment.browser,
-    i18n: window.ysdk.environment.i18n,
-    payload: window.ysdk.environment.payload,  
+    app: window.ysdk?.environment.app,
+    browser: window.ysdk?.environment.browser,
+    i18n: window.ysdk?.environment.i18n,
+    payload: window.ysdk?.environment.payload,  
   };
   return YGTigor.allocateString(JSON.stringify(environment));
 },
@@ -339,7 +339,7 @@ JS_GetEnvironment: function () {
 //#region Adv
 
 JS_ShowFullscreenAdv: function (handler) {
-  window.ysdk.adv.showFullscreenAdv({
+  window.ysdk?.adv.showFullscreenAdv({
       callbacks: {
           onOpen: function() {
             {{{ makeDynCall('vii', 'handler') }}}(0, YGTigor.allocateString(''));
@@ -358,7 +358,7 @@ JS_ShowFullscreenAdv: function (handler) {
 },
 
 JS_ShowRewardedVideo: function (handler) {   
-  window.ysdk.adv.showRewardedVideo({
+  window.ysdk?.adv.showRewardedVideo({
       callbacks: {
           onOpen: function() {
             {{{ makeDynCall('vii', 'handler') }}}(0, YGTigor.allocateString(''));
@@ -485,7 +485,7 @@ JS_DispatchEvent: function (ceventName, cdetail) {
 JS_GetLeaderboardDescription: function (handler, cleaderboardName) {
   const leaderboardName = UTF8ToString(cleaderboardName);
   
-  window.ysdk.getLeaderboards()
+  window.ysdk?.getLeaderboards()
     .then(function (lb) {
       return lb.getLeaderboardDescription(leaderboardName);
     })
@@ -512,7 +512,7 @@ JS_SetLeaderboardScore: function (cleaderboardName, cscore, cextraData) {
   const score = parseFloat(UTF8ToString(cscore));
   const extraData = UTF8ToString(cextraData) ?? undefined;
 
-  window.ysdk.getLeaderboards()
+  window.ysdk?.getLeaderboards()
     .then(function (lb) {
       return lb.setLeaderboardScore(leaderboardName, score, extraData);
     });
@@ -521,7 +521,7 @@ JS_SetLeaderboardScore: function (cleaderboardName, cscore, cextraData) {
 JS_GetLeaderboardPlayerEntry: function (handler, cleaderboardName) {
   const leaderboardName = UTF8ToString(cleaderboardName);
   
-  window.ysdk.getLeaderboards()
+  window.ysdk?.getLeaderboards()
     .then(function (lb) {
       return lb.getLeaderboardPlayerEntry(leaderboardName);
     })
@@ -556,7 +556,7 @@ JS_GetLeaderboardEntries: function (handler, cleaderboardName, cparams) {
   const leaderboardName = UTF8ToString(cleaderboardName);
   const params = cparams ? JSON.parse(UTF8ToString(cparams)) : undefined;
 
-  window.ysdk.getLeaderboards()
+  window.ysdk?.getLeaderboards()
     .then(function (lb) {
       console.log("3", lb,  {
         includeUser: params?.include_user ?? false,
@@ -647,23 +647,24 @@ JS_GetLeaderboardEntries: function (handler, cleaderboardName, cparams) {
   //#region Screen
 
   JS_Screen_Fullscreen_GetStatus: function() {
-    return YGTigor.allocateString(window.ysdk.screen.fullscreen.status);
+    return YGTigor.allocateString(window.ysdk?.screen.fullscreen.status);
   },
 
   JS_Screen_Fullscreen_Request: function() {
-    window.ysdk.screen.fullscreen.request();
+    window.ysdk?.screen.fullscreen.request();
   },
 
   JS_Screen_Fullscreen_Exit: function() {
-    window.ysdk.screen.fullscreen.exit();
+    window.ysdk?.screen.fullscreen.exit();
   },
 
   JS_Screen_Orientation_Get: function() {
-    return YGTigor.allocateString(window.ysdk.screen.orientation.value);
+    return YGTigor.allocateString(window.ysdk?.screen.orientation.value);
   },
 
   JS_Screen_Orientation_Set: function(cvalue) {
-    window.ysdk.screen.orientation.value = UTF8ToString(cvalue);
+    if(window.ysdk)
+      window.ysdk.screen.orientation.value = UTF8ToString(cvalue);
   },
 
   //#endregion
@@ -672,7 +673,7 @@ JS_GetLeaderboardEntries: function (handler, cleaderboardName, cparams) {
 
   JS_ClipboardWriteText: function(ctext) {
     const text = UTF8ToString(ctext);
-    window.ysdk.clipboard.writeText(text);
+    window.ysdk?.clipboard.writeText(text);
   },
 
   //#endregion
@@ -681,11 +682,11 @@ JS_GetLeaderboardEntries: function (handler, cleaderboardName, cparams) {
 
   JS_GetDeviceInfo: function () {
     const deviceInfo = {
-      type: window.ysdk.deviceInfo.type,
-      isMobile: window.ysdk.deviceInfo.type === 'mobile',
-      isDesktop: window.ysdk.deviceInfo.type === 'desktop',
-      isTablet: window.ysdk.deviceInfo.type === 'tablet',
-      isTV: window.ysdk.deviceInfo.type === 'tv',
+      type: window.ysdk?.deviceInfo.type,
+      isMobile: window.ysdk?.deviceInfo.type === 'mobile',
+      isDesktop: window.ysdk?.deviceInfo.type === 'desktop',
+      isTablet: window.ysdk?.deviceInfo.type === 'tablet',
+      isTV: window.ysdk?.deviceInfo.type === 'tv',
     };
     return YGTigor.allocateString(JSON.stringify(deviceInfo));
   },
@@ -712,7 +713,7 @@ JS_GetLeaderboardEntries: function (handler, cleaderboardName, cparams) {
   //#region Server Time
 
   JS_GetServerTime: function (handler) {
-    return window.ysdk.serverTime() ?? 0;
+    return window.ysdk?.serverTime() ?? 0;
   }
 
   //#endregion
