@@ -82,7 +82,7 @@ void GameObject2DDefaultDraw(GameObject2D* go){
     glUseProgram(0);
 }
 
-void GameObject2DSetShader(GameObject2D *go, char *vert_source, char *frag_source){
+void GameObject2DSetShader(GameObject2D *go, const char *vert_source, const char *frag_source){
     
      // build and compile our shader program
     // ------------------------------------
@@ -209,7 +209,8 @@ void GameObject2DDestroy(GameObject2D* go){
 
     if(go->image != NULL)
     {
-        FreeMemory(go->image->path);
+        if(strlen(go->image->path))
+            FreeMemory(go->image->path);
 
         if(go->image->size > 0)
             FreeMemory(go->image->buffer);
@@ -226,6 +227,11 @@ void GameObject2DDestroy(GameObject2D* go){
             FreeMemory(go->graphObj.shapes[i].iParam.indices);
     }
     
+    glDeleteShader(go->self.shaderProgram);
+    glDeleteBuffers(1, &go->graphObj.shapes[0].vParam.buffer);
+    glDeleteBuffers(1, &go->graphObj.shapes[0].iParam.buffer);
+    glDeleteVertexArraysOES(1, &go->graphObj.shapes[0].VAO);
+
     go->self.flags &= ~(TIGOR_GAME_OBJECT_FLAG_INIT);
 }
 

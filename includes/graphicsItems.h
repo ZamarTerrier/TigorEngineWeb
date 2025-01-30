@@ -3,7 +3,7 @@
 
 #include "engine_includes.h"
 
-#define MAX_SHAPES 8
+#define MAX_SHAPES 32
 
 #ifdef __cplusplus
 extern "C"

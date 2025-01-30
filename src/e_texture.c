@@ -9,7 +9,7 @@
 
 extern TEngine engine;
 
-uint32_t TextureFindTexture(const char *path, int *width, int *height)
+int TextureFindTexture(const char *path)
 {
     if(path == NULL)
         return 0;
@@ -21,13 +21,11 @@ uint32_t TextureFindTexture(const char *path, int *width, int *height)
     {
         temp = buff_images[i].path;
         if(!strcmp(temp, path)){
-            *width = buff_images[i].texture.image_data.texWidth;
-            *height = buff_images[i].texture.image_data.texHeight;
-            return buff_images[i].buffer;
+            return i;
         }
     }
 
-    return 0;
+    return -1;
 }
 
 
@@ -37,11 +35,13 @@ void TextureLoadImage(GameObject *go, const char *filePath){
     
     engine_buffered_image *images = engine.DataR.e_var_images;
     
-    uint32_t temp_tex = TextureFindTexture(filePath, &go2D->image->imgWidth, &go2D->image->imgHeight);
+    int img_indx = TextureFindTexture(filePath);
 
-    if(temp_tex != 0)
+    if(img_indx > -1)
     {
-        go2D->image->texture_id = temp_tex;
+        go2D->image->texture_id = images[img_indx].buffer;
+        go2D->image->imgWidth = images[img_indx].texture.image_data.texWidth;
+        go2D->image->imgHeight = images[img_indx].texture.image_data.texHeight;
         return;
     }
     

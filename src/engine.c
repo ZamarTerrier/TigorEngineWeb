@@ -52,7 +52,6 @@ void main_loop() {
         if(GUIManagerIsInit())
             GUIManagerUpdate();
             
-          
         for( int i=0;i < engine.gameObjects.size;i++){
             if(!(engine.gameObjects.objects[i]->flags & TIGOR_GAME_OBJECT_FLAG_INIT))
                 GameObjectInit(engine.gameObjects.objects[i]);

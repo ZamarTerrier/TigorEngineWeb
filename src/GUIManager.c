@@ -238,8 +238,8 @@ void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int nu
 
         const float a_min_segment_angle = a_min_sample * M_PI * 2.0f / GUI_DRAWLIST_ARCFAST_SAMPLE_MAX;
         const float a_max_segment_angle = a_max_sample * M_PI * 2.0f / GUI_DRAWLIST_ARCFAST_SAMPLE_MAX;
-        const bool a_emit_start = abs(a_min_segment_angle - a_min) >= 1e-5f;
-        const bool a_emit_end = abs(a_max - a_max_segment_angle) >= 1e-5f;
+        const bool a_emit_start = fabsf(a_min_segment_angle - a_min) >= 1e-5f;
+        const bool a_emit_end = fabsf(a_max - a_max_segment_angle) >= 1e-5f;
 
         if (a_emit_start){
             gui._Path[gui._Path_Size] = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_min) * radius);
@@ -254,7 +254,7 @@ void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int nu
     }
     else
     {
-        const float arc_length = abs(a_max - a_min);
+        const float arc_length = fabsf(a_max - a_min);
         const int circle_segment_count = _CalcCircleAutoSegmentCount(radius);
         const int arc_segment_count = e_max((int)ceil(circle_segment_count * arc_length / (M_PI * 2.0f)), (int)(2.0f * M_PI / arc_length));
         _PathArcToN(center, radius, a_min, a_max, arc_segment_count);
@@ -371,8 +371,8 @@ void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
     GUIManagerGetVertexCount(&vertCount, &indxCount);
 
     if(GUICurrVertexMaxCount < vertCount){
-        free(gui.go.graphObj.shapes[0].vParam.vertices);
-        free(gui.go.graphObj.shapes[0].iParam.indices);
+        FreeMemory(gui.go.graphObj.shapes[0].vParam.vertices);
+        FreeMemory(gui.go.graphObj.shapes[0].iParam.indices);
 
         while(GUICurrVertexMaxCount < vertCount)
             GUICurrVertexMaxCount = GUICurrVertexMaxCount << 1;
@@ -384,8 +384,8 @@ void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
     }
 
    
-    char *dataV = gui.go.graphObj.shapes[0].vParam.vertices;
-    char *dataI = gui.go.graphObj.shapes[0].iParam.indices;
+    char *dataV = (char *)gui.go.graphObj.shapes[0].vParam.vertices;
+    char *dataI = (char *)gui.go.graphObj.shapes[0].iParam.indices;
     
     gui.go.graphObj.shapes[0].vParam.num_verts = vertCount;
     gui.go.graphObj.shapes[0].iParam.indexesSize = indxCount;
@@ -482,16 +482,16 @@ void GUIManagerInitFont(int default_font){
             fseek(font, 0L, SEEK_END);
             uint32_t size = ftell(font);
 
-            char *buff = (char *)AllocateMemoryP(size, sizeof(char), &engine);
+            const unsigned char *buff = (const unsigned char *)AllocateMemoryP(size, sizeof(char), &engine);
 
             fseek(font, 0L, SEEK_SET);
             
-            fread(buff, sizeof(char),size, font);
+            fread((void *)buff, sizeof(char),size, font);
 
             stbtt_InitFont(gui.font.info, buff, stbtt_GetFontOffsetForIndex(buff,0));
             stbtt_BakeFontBitmap(buff, 0, 32.0, temp_bitmap, gui.font.fontWidth, gui.font.fontHeight, 0, 1106, gui.font.cdata); // no guarantee this fits!
 
-            FreeMemory(buff);
+            FreeMemory((void *)buff);
             fclose(font);
         }
     }else{
@@ -1258,9 +1258,9 @@ void GUIManagerRecreate(){
 void GUIManagerDestroy(){
     GUIManagerClear();   
     
-    FreeMemory(gui.font.cdata);
-    FreeMemory(gui.font.info);
-    FreeMemory(gui.font.texture);
+    FreeMemory((void *)gui.font.cdata);
+    FreeMemory((void *)gui.font.info);
+    FreeMemory((void *)gui.font.texture);
 
     GameObject2DDestroy((GameObject2D *)&gui); 
     

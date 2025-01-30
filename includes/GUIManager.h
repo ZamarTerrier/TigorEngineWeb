@@ -111,7 +111,7 @@ void PathRect(vec2 a, vec2 b, float rounding, uint32_t flags);
 /// @param thickness - толщина линий
 void PathStroke(vec4 color, uint32_t flags, float thickness);
 /// @brief Функция инициализация обхекта интрефейса
-void GUIManagerInit();
+void GUIManagerInit(int default_font);
 /// @brief Функция проверки инициализации отрисовщика интерфейса
 /// @return 0 - не инициализирован 1 - инициалиазирован
 int GUIManagerIsInit();

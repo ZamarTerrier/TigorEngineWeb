@@ -83,7 +83,7 @@ void GUIAddCircle(vec2 center, float radius, vec4 col, int num_segments, float t
 
         // Because we are filling a closed shape we remove 1 from the count of segments/points
         const float a_max = (M_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
-        (center, radius - 0.5f, 0.0f, a_max, num_segments - 1);
+        PathArcTo(center, radius - 0.5f, 0.0f, a_max, num_segments - 1);
     }
 
     PathStroke(col, GUIDrawFlags_Closed, thickness);
