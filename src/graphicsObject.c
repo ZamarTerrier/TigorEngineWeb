@@ -73,16 +73,30 @@ void GraphicsObjectInit(GraphicsObject* graphObj, uint32_t type)
     }*/
 }
 
-void GraphicsObjectSetVertex(GraphicsObject* graphObj, void *vertices, int vertCount, uint32_t *indices, int indxCount){
+void GraphicsObjectSetVertex(GraphicsObject* graphObj, void *vertices, int vertCount, uint32_t *indices, int indxCount, VertexType type){
 
     uint32_t num = graphObj->num_shapes;
 
     int res = 0;
 
+    uint32_t size = 0;
+
+    switch (type)
+    {
+        case TIGOR_VERTEX_TYPE_2D_OBJECT:
+            size = sizeof(Vertex2D);
+            break;
+        case TIGOR_VERTEX_TYPE_3D_OBJECT:
+            size = sizeof(Vertex3D);
+            break;
+        default:
+            break;
+    }
+
     if(vertices != NULL)
     {
-        graphObj->shapes[num].vParam.vertices = AllocateMemoryP(vertCount, sizeof(Vertex2D), graphObj);
-        memcpy(graphObj->shapes[num].vParam.vertices, vertices, sizeof(Vertex2D) * vertCount);
+        graphObj->shapes[num].vParam.vertices = AllocateMemoryP(vertCount, size, graphObj);
+        memcpy(graphObj->shapes[num].vParam.vertices, vertices, size * vertCount);
         graphObj->shapes[num].vParam.num_verts = vertCount;
     }
 
@@ -101,19 +115,34 @@ void GraphicsObjectSetVertex(GraphicsObject* graphObj, void *vertices, int vertC
     glBindVertexArrayOES(graphObj->shapes[0].VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, graphObj->shapes[0].vParam.buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * graphObj->shapes[0].vParam.num_verts, graphObj->shapes[0].vParam.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size * graphObj->shapes[0].vParam.num_verts, graphObj->shapes[0].vParam.vertices, GL_STATIC_DRAW);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphObj->shapes[0].iParam.buffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * graphObj->shapes[0].iParam.indexesSize, graphObj->shapes[0].iParam.indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    switch (type)
+    {
+        case TIGOR_VERTEX_TYPE_2D_OBJECT:
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
+            glEnableVertexAttribArray(2);
+            break;
+        case TIGOR_VERTEX_TYPE_3D_OBJECT:
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(6 * sizeof(float)));
+            glEnableVertexAttribArray(2);
+            glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(9 * sizeof(float)));
+            glEnableVertexAttribArray(3);
+            break;
+        default:
+            break;
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); 

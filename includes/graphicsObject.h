@@ -20,7 +20,7 @@ void GraphicsObjectInit(GraphicsObject* graphObj, uint32_t type);
 void GraphicsObjectSetShaderWithUniform(GraphicsObject* graphObj, ShaderObject *shader, uint32_t pack_indx);
 void GraphicsObjectSetShader(GraphicsObject* graphObj, ShaderObject *shader, uint32_t pack_ind, uint32_t shader_type);
 
-void GraphicsObjectSetVertex(GraphicsObject* graphObj, void *vertices, int vertCount, uint32_t *indices, int indxCount);
+void GraphicsObjectSetVertex(GraphicsObject* graphObj, void *vertices, int vertCount, uint32_t *indices, int indxCount, VertexType type);
 
 void GraphicsObjectCreateDrawItems(GraphicsObject* graphObj);
 void GraphicsObjectCleanPipelines(GraphicsObject *graphObj);

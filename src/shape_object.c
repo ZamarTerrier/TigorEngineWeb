@@ -48,7 +48,7 @@ void ShapeObjectCreateQuad(ShapeObject *so)
 
     memcpy(tIndx, indx, 6 * sizeof(uint32_t));
 
-    GraphicsObjectSetVertex(&so->go.graphObj, verts, 4, tIndx, 6);
+    GraphicsObjectSetVertex(&so->go.graphObj, verts, 4, tIndx, 6, TIGOR_VERTEX_TYPE_2D_OBJECT);
     
     FreeMemory(verts);
     FreeMemory(tIndx);

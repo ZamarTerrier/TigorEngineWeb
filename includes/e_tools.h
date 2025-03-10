@@ -3,6 +3,8 @@
 
 #include "engine_includes.h"
 
+#include "graphicsItems.h"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -27,6 +29,12 @@ float SimplexOctave2D(uint32_t octaves, float x, float y, float frequency, float
 
 float sinWithRange(float value, float minV, float range);
 float cosWithRange(float value, float minV, float range);
+
+int IcoSphereGenerator(vertexParam *vParam, indexParam *iParam,float radius);
+int Cubesphere(vertexParam *vParam, indexParam *iParam, float radius,int vertexCountPerRow);
+int SphereGenerator3D(vertexParam *vParam, indexParam *iParam,float radius, int stackCount, int sectorCount);
+void ConeGenerator(vertexParam *vParam, indexParam *iParam, const float height, int stackCount, int sectorCount);
+void InitPlane3D(vertexParam *vParam, indexParam *iParam, int stackCount, int sectorCount);
 
 char *ToolsMakeString(char *s1, char *s2);
 void ToolsAddStrings(char *out, int buff_size, char *s1, char *s2);

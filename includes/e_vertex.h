@@ -10,6 +10,13 @@ typedef struct {
 } Vertex2D;
 
 typedef struct {
+    vec3 position;
+    vec3 normal;
+    vec3 color;
+    vec2 texCoord;
+} Vertex3D;
+
+typedef struct {
     vec2 position;
     vec4 color;
     vec2 texCoord;

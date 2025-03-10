@@ -6,7 +6,7 @@
 
 #ifdef __EMSCRIPTEN__
 
-#include <emscripten.h>
+#include <emscripten/emscripten.h>
 #include <SDL.h>
 
 #define GL_GLEXT_PROTOTYPES
