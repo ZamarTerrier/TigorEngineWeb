@@ -11,6 +11,7 @@ void _wManagerInputCursorPos(wManagerWindow* window, double xpos, double ypos);
 
 void _wManagerInputMouseClick(wManagerWindow* window, int button, int action, int mods);
 void _wManagerInputScroll(wManagerWindow* window, double xoffset, double yoffset);
+void _wManagerInputFinger(wManagerWindow* window, int fingerID, int action);
 
 void _wManagerInputDrop(wManagerWindow* window, int count, const char** paths);
 

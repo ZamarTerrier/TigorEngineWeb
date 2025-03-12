@@ -32,6 +32,7 @@
 typedef void (*e_charCallback)(void *, uint32_t);
 typedef void (*e_keyCallback)(void *, int , int , int , int );
 typedef void (*e_mouseKeyCallback)(void *, int , int , int );
+typedef void (*e_fingerKeyCallback)(void *, int , int );
 
 typedef enum{
     TIGOR_VERTEX_TYPE_NONE,
@@ -118,6 +119,9 @@ typedef struct{
         
         e_mouseKeyCallback *mouseKeyCallbacks;
         int mouseKeyCallbackSize;
+        
+        e_fingerKeyCallback *fingerKeyCallbacks;
+        int fingerKeyCallbackSize;
     } func;
     
     struct{

@@ -18,7 +18,7 @@ typedef struct wManagerWindow wManagerWindow;
 
 typedef struct{
         // Finger input
-        bool mFingerDown;
+        int mFingerDown;
         double mFingerDownX, mFingerDownY;
 } WebFinger;
 

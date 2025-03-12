@@ -5,6 +5,7 @@
 // Internal key state used for sticky keys
 #define _TIGOR_STICK 3
 
+extern void EngineFingerCallback(wManagerWindow *window,  int fingerId, int action);
 extern void EngineKeyCallback(wManagerWindow *window,  int key, int scancode, int action, int mods);
 extern void EngineMouseKeyCallback(wManagerWindow *window,  int button, int action, int mods);
 
@@ -93,6 +94,24 @@ void _wManagerInputMouseClick(wManagerWindow* window, int button, int action, in
         window->mouseButtons[button] = (char) action;
 
     EngineMouseKeyCallback((wManagerWindow*) window, button, action, mods);
+}
+
+void _wManagerInputFinger(wManagerWindow* window, int fingerID, int action)
+{    
+    int32_t repeated = false;
+
+    if (action == TIGOR_RELEASE && window->fingers[fingerID] == TIGOR_RELEASE)
+        return;
+
+    if (action == TIGOR_PRESS && window->fingers[fingerID] == TIGOR_PRESS)
+        repeated = true;
+
+    window->fingers[fingerID] = (char) action;
+
+    if (repeated)
+        action = TIGOR_REPEAT;  
+
+    EngineFingerCallback((wManagerWindow*) window, fingerID, action);
 }
 
 // Notifies shared code of a scroll event

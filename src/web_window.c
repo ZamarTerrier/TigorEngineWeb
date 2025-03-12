@@ -94,7 +94,7 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
     wManager->someFingerDown = false;
 
     for(int i=0;i < 10;i++){
-        if(wManager->fingers[i].mFingerDown)
+        if(wManager->fingers[i].mFingerDown == TIGOR_PRESS)
             wManager->someFingerDown = true;
     }
 
@@ -117,9 +117,9 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
         	#ifdef EVENTS_DEBUG
             	printf ("SDL_MOUSEWHEEL= x,y=%d,%d preciseX,preciseY=%f,%f\n", m->x, m->y, m->preciseX, m->preciseY);
         	#endif
-        	bool mouseWheelDown = (m->preciseY < 0.0);
+        	bool mouseWheelDown = (m->y < 0.0);
         	//zoomEventMouse(mouseWheelDown, mMousePositionX, mMousePositionY);
-            _wManagerInputScroll(window, 0.0, m->preciseY);
+            _wManagerInputScroll(window, 0.0, m->y);
 
         }
             break;
@@ -150,7 +150,7 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
                 switch(m->button){
                     case SDL_BUTTON_LEFT:
                         button = TIGOR_MOUSE_BUTTON_LEFT;
-                        wManager->mMouseButtonDown = true;
+                        wManager->mMouseButtonDown = TIGOR_PRESS;             
                         wManager->mMouseButtonDownX = m->x;
                         wManager->mMouseButtonDownY = m->y;
                         break;
@@ -178,7 +178,7 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
                 switch(m->button){
                     case SDL_BUTTON_LEFT:
                         button = TIGOR_MOUSE_BUTTON_LEFT;
-                        wManager->mMouseButtonDown = false; 
+                        wManager->mMouseButtonDown = TIGOR_RELEASE; 
                         break;
                     case SDL_BUTTON_MIDDLE:
                         button = TIGOR_MOUSE_BUTTON_MIDDLE;
@@ -199,19 +199,22 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
 
             wManager->fingers[event.tfinger.fingerId%10].mFingerDownX = m->x;
             wManager->fingers[event.tfinger.fingerId%10].mFingerDownY = m->y;
+
             break;
         case SDL_FINGERDOWN:
             m = (SDL_TouchFingerEvent *)&event;
             wManager->someFingerDown = true;
-
-            wManager->fingers[event.tfinger.fingerId%10].mFingerDown = true;
+            wManager->fingers[event.tfinger.fingerId%10].mFingerDown = TIGOR_PRESS;
             wManager->fingers[event.tfinger.fingerId%10].mFingerDownX = m->x;
             wManager->fingers[event.tfinger.fingerId%10].mFingerDownY = m->y;
+            
+            _wManagerInputFinger(window, event.tfinger.fingerId, TIGOR_PRESS);
             //mCamera.setBasePan();
             break;            
         case SDL_FINGERUP:
             m = (SDL_TouchFingerEvent *)&event;
-            wManager->fingers[event.tfinger.fingerId%10].mFingerDown = false;
+            wManager->fingers[event.tfinger.fingerId%10].mFingerDown = TIGOR_RELEASE;
+            _wManagerInputFinger(window, event.tfinger.fingerId, TIGOR_RELEASE);
             break;
 
     }

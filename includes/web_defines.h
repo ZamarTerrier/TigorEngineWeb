@@ -17,7 +17,7 @@ typedef struct{
         double virtualCursorPosX, virtualCursorPosY;
         double lastCursorPosX , lastCursorPosY;
 
-        bool mMouseButtonDown;
+        int mMouseButtonDown;
         double mMouseButtonDownX, mMouseButtonDownY;
 
         WebFinger fingers[10];

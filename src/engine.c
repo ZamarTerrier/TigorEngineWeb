@@ -27,6 +27,12 @@ void EngineKeyCallback(wManagerWindow *window,  int key, int scancode, int actio
         engine.func.keyCallbacks[i](window, key, scancode, action, mods);
 }
 
+void EngineFingerCallback(wManagerWindow *window,  int fingerId, int action){
+
+    for(int i=0; i < engine.func.fingerKeyCallbackSize;i++)
+        engine.func.fingerKeyCallbacks[i](window, fingerId, action);
+}
+
 void EngineMouseKeyCallback(wManagerWindow *window,  int button, int action, int mods){
 
     for(int i=0; i < engine.func.mouseKeyCallbackSize;i++)
@@ -222,6 +228,13 @@ void TEngineSetMouseKeyCallback(SomeMouseKeyCallbackFunc callback){
 
     engine.func.mouseKeyCallbacks = (e_mouseKeyCallback *)realloc(engine.func.mouseKeyCallbacks, engine.func.mouseKeyCallbackSize * sizeof(e_mouseKeyCallback));
     engine.func.mouseKeyCallbacks[engine.func.mouseKeyCallbackSize - 1] = (e_mouseKeyCallback)callback;
+}
+
+void TEngineSetFingerCallback(SomeFingerKeyCallbackFunc callback){
+    engine.func.fingerKeyCallbackSize ++;
+
+    engine.func.fingerKeyCallbacks = (e_fingerKeyCallback *)realloc(engine.func.fingerKeyCallbacks, engine.func.fingerKeyCallbackSize * sizeof(e_fingerKeyCallback));
+    engine.func.fingerKeyCallbacks[engine.func.fingerKeyCallbackSize - 1] = (e_fingerKeyCallback)callback;
 }
 
 void TEngineSetCursorPosCallback(void * callback){
