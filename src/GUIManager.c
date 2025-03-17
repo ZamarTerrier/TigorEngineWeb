@@ -1254,7 +1254,6 @@ void GUIManagerRecreate(){
     GameObjectRecreate((GameObject *)&gui.go);
 }
 
-
 void GUIManagerDestroy(){
     GUIManagerClear();   
     
