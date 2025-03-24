@@ -193,11 +193,7 @@ void TEngineSetFont(char *font_path){
 int TEngineGetMousePress(int Key){
     TWindow *window = (TWindow *)engine.window;
 
-    int state = 0;
-
-#ifndef __ANDROID__
-    state = wManagerGetMouseButton(window->e_window, Key);
-#endif
+    int state = wManagerGetMouseButton(window->e_window, Key);
 
     return state;
 }
@@ -205,29 +201,33 @@ int TEngineGetMousePress(int Key){
 void TEngineGetCursorPos(double *xpos, double *ypos){
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     wManagerGetCursorPos(window->e_window, xpos, ypos);
-#endif
 }
 
 void TEngineSetCursorPos(float xpos, float ypos){
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     wManagerSetCursorPos(window->e_window, xpos, ypos);
-#endif
 }
 
 int TEngineGetKeyPress(int Key){
     TWindow *window = (TWindow *)engine.window;
 
-    int state = 0;
-
-#ifndef __ANDROID__
-    state =  wManagerGetKey(window->e_window, Key);
-#endif
+    int state =  wManagerGetKey(window->e_window, Key);
 
     return state;
+}
+
+const char *TEngineGetClipBoardString(){
+    TWindow *window = (TWindow *)engine.window;
+
+    return wManagerGetClipboardString(window->e_window);
+}
+
+void TEngineSetClipBoardString(const char *string){
+    TWindow *window = (TWindow *)engine.window;
+
+    wManagerSetClipboardString(window->e_window, string);
 }
 
 void TEngineSetKeyCallback(SomeKeyCallbackFunc callback){

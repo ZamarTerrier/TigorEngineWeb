@@ -2,9 +2,14 @@
 
 #include "TigorGUI.h"
 
+#include "e_memory.h"
+
 #include "GUIManager.h"
 
+#include "window_manager.h"
+
 #include "e_math.h"
+#include "e_tools.h"
 
 #include "engine.h"
 #include "e_window.h"
@@ -253,10 +258,7 @@ void WidgetConfirmTrigger(EWidget* widget, int trigger, void *entry){
         if(widget->callbacks.stack[i].trigger == trigger)
         {
             widget_callback temp = widget->callbacks.stack[i].func;
-            res = temp(widget, entry,  widget->callbacks.stack[i].args);
-
-            if(res < 0)
-                return;
+            temp(widget, entry,  widget->callbacks.stack[i].args);
         }
     }
 }
@@ -429,23 +431,19 @@ void WidgetDestroy(EWidget *widget){
     WidgetRemoveStack(widget);  
 }
 
-int ButtonWidgetPress(EWidget *widget, void* entry, void *arg){
+void ButtonWidgetPress(EWidget *widget, void* entry, void *arg){
     EWidgetButton *button = (EWidgetButton *)widget;
     
     WidgetSetColor(&button->widget, vec4_f(button->selfColor.x - 0.2f, button->selfColor.y - 0.2f, button->selfColor.z - 0.2f, 1.0f));
-
-    return 0;
 }
 
-int ButtonWidgetRelease(EWidget *widget, void* entry, void *arg){
+void ButtonWidgetRelease(EWidget *widget, void* entry, void *arg){
 
     EWidgetButton *button = (EWidgetButton *)widget;
     
     WidgetSetColor(&button->widget, button->selfColor);
 
     WidgetConfirmTrigger(widget, TIGOR_WIDGET_TRIGGER_BUTTON_PRESS, NULL);
-
-    return 0;
 }
 
 void ButtonWidgetDraw(EWidgetButton *button){
@@ -675,15 +673,13 @@ void ListWidgetClear(EWidgetList *list){
 }
 
 
-int ComboboxWidgetPressMain(EWidget* widget, void* entry, void *arg){
+void ComboboxWidgetPressMain(EWidget* widget, void* entry, void *arg){
 
     EWidgetCombobox *combo = (EWidgetCombobox *)widget;
 
     WidgetConfirmTrigger((EWidget *)combo, TIGOR_WIDGET_TRIGGER_COMBOBOX_PRESS, NULL);
 
     combo->show = !combo->show;
-
-    return 0;
 }
 
 int ComboboxWidgetPressSub(EWidget* widget, int id, void *arg){
@@ -749,7 +745,7 @@ void ComboboxWidgetAddItem(EWidgetCombobox *combobox, const char* text){
     butt->widget.rounding = 0.f;
 }
 
-int RangeWidgetPress(EWidget* widget, void* entry, void* args){
+void RangeWidgetPress(EWidget* widget, void* entry, void* args){
 
     EWidgetRange *range = args;
 
@@ -762,18 +758,16 @@ int RangeWidgetPress(EWidget* widget, void* entry, void* args){
     range_temp = range->rangePos;
 
     WidgetSetColor(&range->range, vec4_f(range->selfColor.x - 0.2f, range->selfColor.y - 0.2f, range->selfColor.z - 0.2f, 1.0f));
-
-    return 0;
 }
 
-int RangeWidgetRelease(EWidget* widget, void* entry, void* args){
+void RangeWidgetRelease(EWidget* widget, void* entry, void* args){
 
     EWidgetRange *range = args;
 
     WidgetSetColor(&range->range, range->selfColor);
 }
 
-int RangeWidgetMove(EWidget* widget, void* entry, void* args){
+void RangeWidgetMove(EWidget* widget, void* entry, void* args){
 
     vec2 te;
     double xpos, ypos;
@@ -808,8 +802,6 @@ int RangeWidgetMove(EWidget* widget, void* entry, void* args){
     range->rangePos.x = te.x;
 
     WidgetConfirmTrigger((EWidget *)range, TIGOR_WIDGET_TRIGGER_RANGE_CHANGE, &val);
-
-    return 0;
 }
 
 void RangeWidgetDraw(EWidgetRange *range){
@@ -878,7 +870,7 @@ void RangeWidgetSetValue(EWidgetRange *range, float val)
     Transform2DSetPosition((struct GameObject2D_T *)&range->range, te.x, te.y);
 }
 
-int RollerMousePress(EWidget *widget, void *entry, void *args)
+void RollerMousePress(EWidget *widget, void *entry, void *args)
 {
     EWidgetRoller *roller = (EWidgetRoller *)widget;
 
@@ -891,18 +883,16 @@ int RollerMousePress(EWidget *widget, void *entry, void *args)
     roller->widget.color.x = roller->selfColor.x - 0.2f;
     roller->widget.color.y = roller->selfColor.y - 0.2f;
     roller->widget.color.z = roller->selfColor.z - 0.2f;
-
-    return 0;
 }
 
-int RollerWidgetRelease(EWidget* widget, void* entry, void* args){
+void RollerWidgetRelease(EWidget* widget, void* entry, void* args){
 
     EWidgetRoller *roller = (EWidgetRoller *)widget;
 
     roller->widget.color = roller->selfColor;
 }
 
-int RollerMouseMove(EWidget *widget, void *entry, void *args)
+void RollerMouseMove(EWidget *widget, void *entry, void *args)
 {
     EWidgetRoller *roller = (EWidgetRoller *)widget;
 
@@ -919,8 +909,6 @@ int RollerMouseMove(EWidget *widget, void *entry, void *args)
     roller->move_val = roller->stable_val + te.y;
     
     WidgetConfirmTrigger((EWidget *)roller, TIGOR_WIDGET_TRIGGER_ROLLER_MOVE, &roller->move_val);
-
-    return 0;
 }
 
 void RollerWidgetDraw(EWidgetRoller *roller){
@@ -1129,24 +1117,20 @@ void EntryWidgetCharacterCallback(void* arg, uint32_t codepoint)
 
 }
 
-int EntryWidgetPress(EWidget *widget, void *entry, void *arg){
+void EntryWidgetPress(EWidget *widget, void *entry, void *arg){
 
     engine.e_var_current_entry = (EWidget *)widget;
 
     EWidgetEntry *temp = (EWidgetEntry *)widget;
 
     temp->text[temp->currPos] = '|';
-
-    return 0;
 }
 
-int EntryWidgetUnfocus(EWidget *widget, void *entry, void *arg){
+void EntryWidgetUnfocus(EWidget *widget, void *entry, void *arg){
 
     EWidgetEntry *temp = (EWidgetEntry *)widget;
 
     temp->text[temp->currPos] = 0;
-
-    return 0;
 }
 
 char *EntryWidgetGetText(EWidgetEntry *entry)
@@ -1159,7 +1143,7 @@ void EntryWidgetSetText(EWidgetEntry *entry, char *text)
 
     memset(entry->text, 0, MAX_ENTERY_LENGTH);
 
-    int len = GUICalcTextLength(entry->widget.scale.x * 2, entry->fontSize, text);
+    int len = GUICalcTextLengthU8(entry->widget.scale.x * 2, text);
     
     if(len > MAX_ENTERY_LENGTH)
     {
@@ -1232,11 +1216,11 @@ void EntryWidgetInit(EWidgetEntry *entry, vec2 scale, EWidget *parent){
     WidgetSetColor((EWidget *)&entry->widget, vec4_f(1, 1, 1, 1.0f));
     WidgetSetScale((EWidget *)entry, scale.x, scale.y);
 
-    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, EntryWidgetPress, NULL);
-    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_WIDGET_UNFOCUS, EntryWidgetUnfocus, NULL);
+    WidgetConnect((EWidget *)entry, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, EntryWidgetPress, NULL);
+    WidgetConnect((EWidget *)entry, TIGOR_WIDGET_TRIGGER_WIDGET_UNFOCUS, EntryWidgetUnfocus, NULL);
 
-    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_ENTRY_CHAR_INPUT, (widget_callback )EntryWidgetCharInput, NULL);
-    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_PRESS_INPUT, (widget_callback )EntryWidgetKeyPressInput, NULL);
-    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_REPEAT_INPUT, (widget_callback )EntryWidgetKeyRepeatInput, NULL);
+    WidgetConnect((EWidget *)entry, TIGOR_WIDGET_TRIGGER_ENTRY_CHAR_INPUT, (widget_callback )EntryWidgetCharInput, NULL);
+    WidgetConnect((EWidget *)entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_PRESS_INPUT, (widget_callback )EntryWidgetKeyPressInput, NULL);
+    WidgetConnect((EWidget *)entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_REPEAT_INPUT, (widget_callback )EntryWidgetKeyRepeatInput, NULL);
 
 }

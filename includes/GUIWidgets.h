@@ -115,7 +115,7 @@ typedef struct{
 } MaskObjectBuffer;
 
 
-typedef int(*widget_callback)(EWidget *widget, void *, void*);
+typedef void(*widget_callback)(EWidget *widget, void *, void*);
 
 void WidgetRemoveStack(EWidget *ew);
 
@@ -124,7 +124,7 @@ ChildStack * WidgetFindChild(EWidget* widget, int num);
 void WidgetUpdateScissor(EWidget *widget);
 void WidgetUpdateScissorFromParent(EWidget *parent, GameObject2D *child);
 void WidgetSetParent(EWidget* ew, EWidget* parent);
-void WidgetSetColor(EWidget* ew, vec3 color);
+void WidgetSetColor(EWidget* ew, vec4 color);
 void WidgetSetScale(EWidget* ew, float xscale, float yscale);
 void WidgetSetPosition(EWidget* ew, float xpos, float ypos);
 void WidgetSetBase(EWidget* ew, float xpos, float ypos);
@@ -156,7 +156,7 @@ typedef struct{
 
 void ListWidgetInit(EWidgetList *list, vec2 scale, EWidget *parent);
 
-void ListWidgetSetColor(EWidgetList *list, vec3 color);
+void ListWidgetSetColor(EWidgetList *list, vec4 color);
 EWidgetButton *ListWidgetAddItem(EWidgetList *list, const char *text);
 void ListWidgetRemoveItem(EWidgetList *list, int num);
 void ListWidgetClear(EWidgetList *list);

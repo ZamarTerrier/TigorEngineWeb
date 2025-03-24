@@ -125,6 +125,16 @@ int wManagerGetKey(wManagerWindow *window, int key)
     return (int) window->keys[key];
 }
 
+void wManagerSetClipboardString(wManagerWindow *window, const char *string)
+{
+    return _wMWindow.platform.setClipboardString(string);
+}
+
+const char *wManagerGetClipboardString(wManagerWindow *window)
+{
+    return _wMWindow.platform.getClipboardString();
+}
+
 void wManagerSetCharCallback(wManagerWindow *window, wManagerCharacterFunc EngineCharacterCallback)
 {
     window->callbacks.character = EngineCharacterCallback;

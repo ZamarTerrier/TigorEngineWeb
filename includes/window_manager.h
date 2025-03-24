@@ -124,6 +124,9 @@ void wManagerGetCursorPos(wManagerWindow *window, double *xpos, double *ypos);
 void wManagerSetCursorPos(wManagerWindow *window, double xpos, double ypos);
 int wManagerGetMouseButton(wManagerWindow *window, int button);
 
+void wManagerSetClipboardString(wManagerWindow *window, const char *string);
+const char *wManagerGetClipboardString(wManagerWindow *window);
+
 void wManagerSetCharCallback(wManagerWindow *window, wManagerCharacterFunc EngineCharacterCallback);
 void wManagerSetKeyCallback(wManagerWindow *window, wManagerKeyFunc EngineKeyCallback);
 
