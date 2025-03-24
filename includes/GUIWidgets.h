@@ -94,6 +94,10 @@ typedef struct EWidget{
     EngineWidgetFlag widget_flags;
     EngineWidgetTypeEnum type;
     CallbackStack callbacks;
+
+    bool mousePressed;
+    bool fingerPressed;
+    int fingerId;
 } EWidget;
 
 typedef struct{

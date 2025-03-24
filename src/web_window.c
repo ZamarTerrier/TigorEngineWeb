@@ -143,31 +143,31 @@ void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event){
         }
             break;
         case SDL_MOUSEBUTTONDOWN: 
-        {
-            SDL_MouseButtonEvent *m = (SDL_MouseButtonEvent*)&event;
-            if(!wManager->someFingerDown)
             {
-                switch(m->button){
-                    case SDL_BUTTON_LEFT:
-                        button = TIGOR_MOUSE_BUTTON_LEFT;
-                        wManager->mMouseButtonDown = TIGOR_PRESS;             
-                        wManager->mMouseButtonDownX = m->x;
-                        wManager->mMouseButtonDownY = m->y;
-                        break;
-                    case SDL_BUTTON_MIDDLE:
-                        button = TIGOR_MOUSE_BUTTON_MIDDLE;
-                        break;
-                    case SDL_BUTTON_RIGHT:
-                        button = TIGOR_MOUSE_BUTTON_RIGHT;
-                        break;
-                }
+                SDL_MouseButtonEvent *m = (SDL_MouseButtonEvent*)&event;
+                if(!wManager->someFingerDown)
+                {
+                    switch(m->button){
+                        case SDL_BUTTON_LEFT:
+                            button = TIGOR_MOUSE_BUTTON_LEFT;
+                            wManager->mMouseButtonDown = TIGOR_PRESS;             
+                            wManager->mMouseButtonDownX = m->x;
+                            wManager->mMouseButtonDownY = m->y;
+                            break;
+                        case SDL_BUTTON_MIDDLE:
+                            button = TIGOR_MOUSE_BUTTON_MIDDLE;
+                            break;
+                        case SDL_BUTTON_RIGHT:
+                            button = TIGOR_MOUSE_BUTTON_RIGHT;
+                            break;
+                    }
 
-                action = TIGOR_PRESS;
-                
-                _wManagerInputMouseClick(window, button, action, getKeyMods());
+                    action = TIGOR_PRESS;
+                    
+                    _wManagerInputMouseClick(window, button, action, getKeyMods());
+                }
             }
-        }
-        break;
+            break;
 
         case SDL_MOUSEBUTTONUP: 
         {

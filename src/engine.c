@@ -19,6 +19,8 @@ extern void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event);
 
 extern void EntryWidgetCharacterCallback(void* arg, uint32_t codepoint);
 extern void EntryWidgetKeyCallback(void* arg,  int key, int scancode, int action, int mods);
+extern void WidgetMouseCallback(wManagerWindow *window,  int button, int action, int mods);
+extern void WidgetFingerCallback(wManagerWindow *window,  int fingerId, int action);
 
 SomeUpdateFunc Updater = NULL;
 
@@ -40,11 +42,15 @@ void EngineKeyCallback(wManagerWindow *window,  int key, int scancode, int actio
 
 void EngineFingerCallback(wManagerWindow *window,  int fingerId, int action){
 
+    WidgetFingerCallback(window, fingerId, action);
+
     for(int i=0; i < engine.func.fingerKeyCallbackSize;i++)
         engine.func.fingerKeyCallbacks[i](window, fingerId, action);
 }
 
 void EngineMouseKeyCallback(wManagerWindow *window,  int button, int action, int mods){
+
+    WidgetMouseCallback(window, button, action, mods);
 
     for(int i=0; i < engine.func.mouseKeyCallbackSize;i++)
         engine.func.mouseKeyCallbacks[i](window, button, action, mods);
@@ -76,7 +82,7 @@ void main_loop() {
 
         // render
         // ------
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor( 0.3, 0.01f, 0.01f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

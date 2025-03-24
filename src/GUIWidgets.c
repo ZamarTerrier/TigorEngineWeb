@@ -2,6 +2,8 @@
 
 #include "TigorGUI.h"
 
+#include "e_camera.h"
+
 #include "e_memory.h"
 
 #include "GUIManager.h"
@@ -221,6 +223,8 @@ void WidgetInit(EWidget* ew, EWidget* parent){
     ew->transparent = 1.0f;
     ew->rounding = 0.f;
     ew->child = NULL;
+    ew->fingerPressed = false;
+    ew->fingerId = -1;
 
     WidgetSetParent(ew, parent);
 
@@ -263,144 +267,194 @@ void WidgetConfirmTrigger(EWidget* widget, int trigger, void *entry){
     }
 }
 
-int WidgetCheck(EWidget *widget){
-    
-    TWindow *window = (TWindow *)engine.window;
-
-    if(widget == NULL)
-        return 0;
-        
-    if(!(widget->widget_flags & TIGOR_FLAG_WIDGET_ACTIVE) || !(widget->widget_flags & TIGOR_FLAG_WIDGET_VISIBLE))
-        return 0;
+void WidgetMouseCallback(wManagerWindow *window,  int button, int action, int mods){
 
     double xpos, ypos;
+    TEngineGetCursorPos(&xpos, &ypos);  
 
-    wManagerGetCursorPos(window->e_window, &xpos, &ypos);
-
-    xpos *= 2;
-    ypos *= 2;
-
-    if(xpos > (widget->position.x + widget->base.x) && xpos < (widget->position.x + widget->base.x + widget->scale.x) &&
-            ypos > (widget->position.y + widget->base.y) && ypos < (widget->position.y + widget->base.y + widget->scale.y)){
-                return true;
-            }
-
-    widget->widget_flags |= TIGOR_FLAG_WIDGET_OUT;
-
-    return false;
-}
-
-EWidget* WidgetCheckMouseInner(ChildStack* child){
-
-    ChildStack* next = child->before;    
-
-    EWidget *widget = child->node;
-    EWidget *lastfind = NULL;
-
-    if(widget == NULL)
-        return NULL;
-        
-    while((!(widget->widget_flags & TIGOR_FLAG_WIDGET_ACTIVE) || !(widget->widget_flags & TIGOR_FLAG_WIDGET_VISIBLE)) && next != NULL){
-
-        widget = next->node;
-
-        next = next->before;
-    }
+    vec2 n_point, c_pos = Camera2DGetPosition();
     
-    if(widget == NULL)
-        return NULL;
+    if(action == TIGOR_PRESS && button == TIGOR_MOUSE_BUTTON_1){
+        ChildStack *child = gui.last_widget;
+        EWidget *widget;
 
-    if(WidgetCheck(widget))
-        return widget;
+        while(child != NULL){
 
-    while(next != NULL)
-    {
-        widget = next->node;
+            widget = child->node;
+            
+            if(!(widget->widget_flags & TIGOR_FLAG_WIDGET_ACTIVE) || !(widget->widget_flags & TIGOR_FLAG_WIDGET_VISIBLE))
+                continue;
 
-        if(widget != NULL)
-        {
-            if(WidgetCheck(widget)){
-                widget->widget_flags |= TIGOR_FLAG_WIDGET_IN;
-                return widget;
+            if(widget->fingerPressed){
+                child = child->before;
+                continue;
             }
+
+            vec2 orig_pos = v2_add(widget->position, widget->base);
+            
+            vec2 a = orig_pos;
+            vec2 c = v2_add(orig_pos, widget->scale);
+            n_point = v2_add(c_pos, vec2_f(xpos, ypos));  
+            if(a.x < n_point.x && c.x > n_point.x && a.y < n_point.y && c.y > n_point.y){
+                widget->mousePressed = true;
+                widget->fingerId = -1;
+                WidgetConfirmTrigger(widget, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, NULL);
+                break;
+            }
+
+            child = child->before;
         }
 
-        next = next->before;
+    }else if(action == TIGOR_RELEASE && button == TIGOR_MOUSE_BUTTON_1){
+
+        ChildStack *child = gui.last_widget;
+        EWidget *widget;
+
+        while(child != NULL){
+            widget = child->node;
+                        
+            if(widget->mousePressed)
+            {
+                WidgetConfirmTrigger(widget, TIGOR_WIDGET_TRIGGER_MOUSE_RELEASE, NULL); 
+                widget->mousePressed = false;    
+            }
+
+            child = child->before;
+        }
     }
 
-
-    return NULL;
 }
 
+void WidgetFingerCallback(wManagerWindow *window,  int fingerId, int action){
+    
+    WebFinger *fingers = TEngineGetFingerPressState();
+    
+    ChildStack *child = gui.last_widget;
+    EWidget *widget;
+
+    vec2 n_point, c_pos = Camera2DGetPosition();
+
+    if(action == TIGOR_PRESS){
+
+        ChildStack *child = gui.last_widget;
+        EWidget *widget;
+
+        while(child != NULL){
+
+            widget = child->node;
+            
+            if(!(widget->widget_flags & TIGOR_FLAG_WIDGET_ACTIVE) || !(widget->widget_flags & TIGOR_FLAG_WIDGET_VISIBLE))
+                continue;
+
+                
+            if(widget->mousePressed){
+                child = child->before;
+                continue;
+            }
+
+            vec2 orig_pos = v2_add(widget->position, widget->base);
+            
+            vec2 a = orig_pos;
+            vec2 c = v2_add(orig_pos, widget->scale);
+            n_point = v2_add(c_pos, vec2_f(fingers[fingerId].mFingerDownX * engine.width, fingers[fingerId].mFingerDownY * engine.height));  
+            if(a.x < n_point.x && c.x > n_point.x && a.y < n_point.y && c.y > n_point.y){
+                widget->fingerPressed = true;
+                widget->fingerId = fingerId;
+                WidgetConfirmTrigger(widget, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, NULL);
+                break;
+            }
+
+            child = child->before;
+        }
+    }else if(action == TIGOR_RELEASE){
+
+        ChildStack *child = gui.last_widget;
+        EWidget *widget;
+
+        while(child != NULL){
+            widget = child->node;
+                         
+            if(widget->mousePressed ||  widget->fingerId == fingerId)
+            {
+                WidgetConfirmTrigger(widget, TIGOR_WIDGET_TRIGGER_MOUSE_RELEASE, NULL);
+                widget->fingerId = -1;
+                widget->fingerPressed = false;
+                widget->mousePressed = false;    
+            }
+
+            child = child->before;
+        }
+    }
+}
 
 void WidgetEventsPipe(ChildStack *child)
 {
-    if(child == NULL)
-        return;
+    // if(child == NULL)
+    //     return;
 
-    TWindow *window = (TWindow *)engine.window;
+    // TWindow *window = (TWindow *)engine.window;
 
-    EWidget *widget = child->node;
+    // EWidget *widget = child->node;
 
-    if(e_var_wasReleased && e_var_sellected == NULL){
-        e_var_sellected = WidgetCheckMouseInner(child);
-    }
+    // if(!widget->fingerPressed && e_var_wasReleased && e_var_sellected == NULL){
+    //     e_var_sellected = WidgetCheckMouseInner(child) ;
+    // }
 
-    if(e_var_sellected != NULL)
-    {      
-        widget->widget_flags |= TIGOR_FLAG_WIDGET_IN;
+    // if(e_var_sellected != NULL)
+    // {      
+    //     widget->widget_flags |= TIGOR_FLAG_WIDGET_IN;
 
-        if((e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT) && !(e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN))
-            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_IN, NULL);
-        else if(!(e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT) && (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN))
-            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_OUT, NULL);
-        else if(!(e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT)&& (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN))
-            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_STAY, NULL);
+    //     if((e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT) && !(e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN))
+    //         WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_IN, NULL);
+    //     else if(!(e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT) && (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN))
+    //         WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_OUT, NULL);
+    //     else if(!(e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT)&& (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN))
+    //         WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_STAY, NULL);
 
-        if(e_var_leftMouse && e_var_wasReleased)
-        {
-            if(engine.e_var_current_entry != e_var_sellected)
-                engine.e_var_current_entry = NULL;
+    //     if(e_var_leftMouse && e_var_wasReleased)
+    //     {
+    //         if(engine.e_var_current_entry != e_var_sellected)
+    //             engine.e_var_current_entry = NULL;
 
-            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, NULL);
-            e_var_wasReleased = false;
+    //         WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, NULL);
+    //         e_var_wasReleased = false;
 
-            if(e_var_last_sellected != e_var_sellected){
+    //         if(e_var_last_sellected != e_var_sellected){
 
-                if(e_var_last_sellected != NULL)
-                    WidgetConfirmTrigger(e_var_last_sellected, TIGOR_WIDGET_TRIGGER_WIDGET_UNFOCUS, NULL);
+    //             if(e_var_last_sellected != NULL)
+    //                 WidgetConfirmTrigger(e_var_last_sellected, TIGOR_WIDGET_TRIGGER_WIDGET_UNFOCUS, NULL);
 
-                WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_WIDGET_FOCUS, NULL);
-            }
+    //             WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_WIDGET_FOCUS, NULL);
+    //         }
 
-            e_var_last_sellected = e_var_sellected;
-        }
-        else if(e_var_leftMouse)
-            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_MOVE, NULL);
-        else if(!e_var_leftMouse && !e_var_wasReleased)
-        {
-            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_RELEASE, NULL);
-            e_var_wasReleased = true;
-        }else
-        {
-            e_var_sellected->widget_flags |= (((e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT) | (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_OUT)) | \
-                                            ((e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN) | (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_IN)));
-        }
+    //         e_var_last_sellected = e_var_sellected;
+    //     }
+    //     else if(e_var_leftMouse)
+    //         WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_MOVE, NULL);
+    //     else if(!e_var_leftMouse && !e_var_wasReleased)
+    //     {
+    //         WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_RELEASE, NULL);
+    //         e_var_wasReleased = true;
+    //     }else
+    //     {
+    //         e_var_sellected->widget_flags |= (((e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT) | (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_OUT)) | \
+    //                                         ((e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN) | (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_IN)));
+    //     }
 
-    }
+    // }
 
-    int state = 0;
+    // int state = 0;
 
-    state = wManagerGetMouseButton(window->e_window, TIGOR_MOUSE_BUTTON_LEFT);
+    // state = wManagerGetMouseButton(window->e_window, TIGOR_MOUSE_BUTTON_LEFT);
 
-    if(state == TIGOR_PRESS)
-        e_var_leftMouse = true;
-    else
-        e_var_leftMouse = false;
+    // if(state == TIGOR_PRESS)
+    //     e_var_leftMouse = true;
+    // else
+    //     e_var_leftMouse = false;
 
-    if(e_var_wasReleased){
-        e_var_sellected = NULL;
-    }
+    // if(e_var_wasReleased){
+    //     e_var_sellected = NULL;
+    // }
 
 }
 
@@ -435,6 +489,8 @@ void ButtonWidgetPress(EWidget *widget, void* entry, void *arg){
     EWidgetButton *button = (EWidgetButton *)widget;
     
     WidgetSetColor(&button->widget, vec4_f(button->selfColor.x - 0.2f, button->selfColor.y - 0.2f, button->selfColor.z - 0.2f, 1.0f));
+
+    printf("Button pressed!\n");
 }
 
 void ButtonWidgetRelease(EWidget *widget, void* entry, void *arg){
@@ -444,6 +500,8 @@ void ButtonWidgetRelease(EWidget *widget, void* entry, void *arg){
     WidgetSetColor(&button->widget, button->selfColor);
 
     WidgetConfirmTrigger(widget, TIGOR_WIDGET_TRIGGER_BUTTON_PRESS, NULL);
+    
+    printf("Button Released!\n");
 }
 
 void ButtonWidgetDraw(EWidgetButton *button){
@@ -470,7 +528,12 @@ void ButtonWidgetInit(EWidgetButton *button, vec2 scale, const char *text, EWidg
     GameObjectSetDrawFunc((GameObject *)button, (void *)ButtonWidgetDraw);
 
     button->widget.type = TIGOR_WIDGET_TYPE_BUTTON;
-    button->widget.rounding = 10.0f;    
+    button->widget.rounding = 5.0f;    
+
+    vec2 text_size = GUIGetTextSizeU8(text);
+
+    scale.x = e_max(scale.x, text_size.x);
+    scale.y = e_max(scale.y, text_size.y);
 
     button->selfColor = vec4_f( 1.0, 1.0, 1.0, 1.0);
 

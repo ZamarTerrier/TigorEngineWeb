@@ -547,6 +547,8 @@ void GUIManagerInit(int default_font){
 
     memcpy(gui.go.name, "GUI", 3);
 
+    gui.first_widget = AllocateMemory(1, sizeof(ChildStack));
+
     gui.font.fontWidth = 512;
     gui.font.fontHeight = 512;
     gui.font.fontSize = 14;
@@ -681,17 +683,21 @@ vec2 GUIGetTextSizeU32(uint32_t *text){
 
     uint32_t *tempI = text;
         
-
     // Generate a uv mapped quad per char in the new text
     for (int i=0;i < len;i++)
     {
         stbtt_GetBakedQuad(gui.font.cdata, 512,512, *tempI, &x,&y,&q,1);//1=opengl & d3d10+,0=d3d9
         
-        size.x += q.x1 - q.x0;
-        size.y += q.y1 - q.y0;
+
+        char *point = (char *)tempI;
+
+        if(point[0] == '\n')
+            size.y += q.y1 - q.y0;
         
         ++tempI;
     }
+    
+    size.x = x;
 
     return size;
 }
