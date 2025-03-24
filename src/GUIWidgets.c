@@ -83,6 +83,8 @@ void WidgetRemoveStack(EWidget* ew){
         }
         else{
             child->next->before = NULL;
+            if(gui.first_widget == gui.last_widget)
+                gui.last_widget = NULL;
             gui.first_widget = child->next;
         }
     }else{
@@ -489,8 +491,6 @@ void ButtonWidgetPress(EWidget *widget, void* entry, void *arg){
     EWidgetButton *button = (EWidgetButton *)widget;
     
     WidgetSetColor(&button->widget, vec4_f(button->selfColor.x - 0.2f, button->selfColor.y - 0.2f, button->selfColor.z - 0.2f, 1.0f));
-
-    printf("Button pressed!\n");
 }
 
 void ButtonWidgetRelease(EWidget *widget, void* entry, void *arg){
@@ -500,8 +500,6 @@ void ButtonWidgetRelease(EWidget *widget, void* entry, void *arg){
     WidgetSetColor(&button->widget, button->selfColor);
 
     WidgetConfirmTrigger(widget, TIGOR_WIDGET_TRIGGER_BUTTON_PRESS, NULL);
-    
-    printf("Button Released!\n");
 }
 
 void ButtonWidgetDraw(EWidgetButton *button){

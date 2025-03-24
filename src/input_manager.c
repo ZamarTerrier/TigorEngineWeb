@@ -6,6 +6,7 @@
 #define _TIGOR_STICK 3
 
 extern void EngineFingerCallback(wManagerWindow *window,  int fingerId, int action);
+extern void EngineCharacterCallback(wManagerWindow* window, uint32_t codepoint);
 extern void EngineKeyCallback(wManagerWindow *window,  int key, int scancode, int action, int mods);
 extern void EngineMouseKeyCallback(wManagerWindow *window,  int button, int action, int mods);
 
@@ -35,8 +36,7 @@ void _wManagerInputKey(wManagerWindow* window, int key, int scancode, int action
     if (!window->lockKeyMods)
         mods &= ~(TIGOR_MOD_CAPS_LOCK | TIGOR_MOD_NUM_LOCK);
     
-    if (window->callbacks.key)
-        window->callbacks.key((wManagerWindow*) window, key, scancode, action, mods);
+    EngineKeyCallback((wManagerWindow*) window, key, scancode, action, mods);
 }
 // Notifies shared code of a Unicode codepoint input event
 // The 'plain' parameter determines whether to emit a regular character event
@@ -54,8 +54,7 @@ void _wManagerInputChar(wManagerWindow* window, uint32_t codepoint, int mods, in
 
     if (plain)
     {
-        if (window->callbacks.character)
-            window->callbacks.character((wManagerWindow*) window, codepoint);
+        EngineCharacterCallback((wManagerWindow*) window, codepoint);
     }
 }
 
