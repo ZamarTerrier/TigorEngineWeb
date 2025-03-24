@@ -125,6 +125,16 @@ int wManagerGetKey(wManagerWindow *window, int key)
     return (int) window->keys[key];
 }
 
+void wManagerSetCharCallback(wManagerWindow *window, wManagerCharacterFunc EngineCharacterCallback)
+{
+    window->callbacks.character = EngineCharacterCallback;
+}
+
+void wManagerSetKeyCallback(wManagerWindow *window, wManagerKeyFunc EngineKeyCallback)
+{
+    window->callbacks.key = EngineKeyCallback;
+}
+
 void wManagerGetCursorPos(wManagerWindow *window, double *xpos, double *ypos)
 {
     window->platform.getCursorPos(window, xpos, ypos);

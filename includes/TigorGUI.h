@@ -152,4 +152,24 @@ extern void GUIAddTextU32(float xpos, float ypos, vec4 color, float font_size, u
 
 #endif
 
+#ifndef GUIGetTextSize
+
+extern vec2 GUIGetTextSizeU8(const char *text);
+extern vec2 GUIGetTextSizeU32(uint32_t *text);
+
+#define GUIGetTextSize(text)\
+    _Generic((text),\
+    char *: GUIGetTextSizeU8,\
+    const char *: GUIGetTextSizeU8,\
+    unsigned int *: GUIGetTextSizeU32\
+    )(text)
+
+#endif
+
+extern int GUICalcTextLengthU8(float max_size, const char *text);
+extern int GUICalcTextLength(float max_size, uint32_t *text);
+
+extern int GUICalcTextLengthFromEnd(float max_size, uint32_t *text);
+extern int GUICalcTextLengthFromEndU8(float max_size, const char *text);
+
 #endif //#ifndef TigorGUI_H

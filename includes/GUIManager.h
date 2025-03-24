@@ -47,8 +47,8 @@ typedef struct{
     uint32_t Flags;
     bool sellected;
 
-    /*struct ChildStack* first_widget;
-    struct ChildStack* last_widget;*/
+    struct ChildStack* first_widget;
+    struct ChildStack* last_widget;
 
     struct{
         uint32_t fontWidth;

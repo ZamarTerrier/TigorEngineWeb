@@ -17,11 +17,22 @@ TEngine engine;
 
 extern void _wManagerPoolEventWeb(wManagerWindow *window, SDL_Event event);
 
+extern void EntryWidgetCharacterCallback(void* arg, uint32_t codepoint);
+extern void EntryWidgetKeyCallback(void* arg,  int key, int scancode, int action, int mods);
+
 SomeUpdateFunc Updater = NULL;
+
+void EngineCharacterCallback(wManagerWindow* window, uint32_t codepoint)
+{
+    EntryWidgetCharacterCallback(window, codepoint);
+
+    for(int i=0; i < engine.func.charCallbackSize;i++)
+        engine.func.charCallbacks[i](window, codepoint);
+}
 
 void EngineKeyCallback(wManagerWindow *window,  int key, int scancode, int action, int mods)
 {
-    //EntryWidgetKeyCallback(window, key, scancode, action, mods);
+    EntryWidgetKeyCallback(window, key, scancode, action, mods);
 
     for(int i=0; i < engine.func.keyCallbackSize;i++)
         engine.func.keyCallbacks[i](window, key, scancode, action, mods);
@@ -138,6 +149,9 @@ void TEngineInitSystem(int width, int height, const char* name){
     engine.gameObjects.curr_size = START_DRAW_OBJECTS;
     
     EngineInit();
+    
+    wManagerSetCharCallback(window->e_window, EngineCharacterCallback);
+    wManagerSetKeyCallback(window->e_window, EngineKeyCallback);
            
     if(!GUIManagerIsInit()){        
         GUIManagerInit(true);

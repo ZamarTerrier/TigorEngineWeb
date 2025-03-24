@@ -1,4 +1,5 @@
 #include "GUIManager.h"
+#include "GUIWidgets.h"
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -655,6 +656,129 @@ void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec4 col, float roundi
     }
 }
 
+vec2 GUIGetTextSizeU8(const char *text){
+
+    uint32_t size = strlen((const char *)text) + 1;
+    uint32_t buff[size + 1];
+    memset(buff, 0, size + 1);
+
+    //ToolsStringToUInt32(buff, text);
+
+    ToolsTextStrFromUtf8(buff, size, text, 0, NULL);
+
+    return GUIGetTextSizeU32(buff);
+}
+
+vec2 GUIGetTextSizeU32(uint32_t *text){
+    int len = ToolsStr32BitLength((uint32_t *)text);
+
+    vec2 size = {0, 0};
+
+    stbtt_aligned_quad q;
+    
+    float x = 0.0f;
+    float y = 0.0f;
+
+    uint32_t *tempI = text;
+        
+
+    // Generate a uv mapped quad per char in the new text
+    for (int i=0;i < len;i++)
+    {
+        stbtt_GetBakedQuad(gui.font.cdata, 512,512, *tempI, &x,&y,&q,1);//1=opengl & d3d10+,0=d3d9
+        
+        size.x += q.x1 - q.x0;
+        size.y += q.y1 - q.y0;
+        
+        ++tempI;
+    }
+
+    return size;
+}
+
+int GUICalcTextLengthU8(float max_size, const char *text){
+
+    uint32_t size = strlen(text) + 1;
+    uint32_t buff[size + 1];
+    memset(buff, 0, size + 1);
+
+    //ToolsStringToUInt32(buff, text);
+
+    ToolsTextStrFromUtf8(buff, size, text, 0, NULL);
+    return GUICalcTextLength(max_size, buff);
+}
+
+int GUICalcTextLength(float max_size, uint32_t *text){
+    int len = ToolsStr32BitLength((uint32_t *)text);
+
+    stbtt_aligned_quad q;
+    
+    float x = 0.0f;
+    float y = 0.0f;
+    float last_x = 0;
+
+    int length = 0;
+
+    uint32_t *tempI = text;
+        
+    // Generate a uv mapped quad per char in the new text
+    for (int i=0;i < len;i++)
+    {
+        stbtt_GetBakedQuad(gui.font.cdata, 512,512, *tempI, &x,&y,&q,1);//1=opengl & d3d10+,0=d3d9
+        
+        last_x += q.x1 - q.x0;
+
+        if(last_x > max_size)
+            break;
+        
+        length ++;
+        ++tempI;
+    }
+
+    return length;
+}
+
+int GUICalcTextLengthFromEndU8(float max_size, const char *text){
+
+    uint32_t size = strlen(text) + 1;
+    uint32_t buff[size + 1];
+    memset(buff, 0, size + 1);
+
+    //ToolsStringToUInt32(buff, text);
+
+    ToolsTextStrFromUtf8(buff, size, text, 0, NULL);
+    return GUICalcTextLengthFromEnd(max_size, buff);
+}
+
+int GUICalcTextLengthFromEnd(float max_size, uint32_t *text){
+    int len = ToolsStr32BitLength((uint32_t *)text);
+
+    stbtt_aligned_quad q;
+    
+    float x = 0.0f;
+    float y = 0.0f;
+    float last_x = 0;
+
+    int length = 0;
+
+    uint32_t *tempI = text;
+        
+    // Generate a uv mapped quad per char in the new text
+    for (int i=0;i < len;i++)
+    {
+        stbtt_GetBakedQuad(gui.font.cdata, 512,512, tempI[len - (i + 1)], &x,&y,&q,1);//1=opengl & d3d10+,0=d3d9
+        
+        last_x += q.x1 - q.x0;
+
+        if(x > max_size)
+            break;
+        
+        length ++;
+    }
+
+    return length;
+}
+
 void GUISetText(float xpos, float ypos, vec4 color, float font_size, uint32_t *text){
 
     int len = ToolsStr32BitLength((uint32_t *)text);
@@ -1218,9 +1342,27 @@ void GUIManagerUpdate(){
             
     
     glUseProgram(0);
+    
+    WidgetEventsPipe(gui.last_widget);
 }
 
 void GUIManagerDraw(){
+
+    ChildStack *child = gui.first_widget;  
+    
+    EWidget *widget = NULL;
+    while(child != NULL)
+    {
+        widget = child->node;
+
+        if(widget != NULL){
+            if(widget->widget_flags & TIGOR_FLAG_WIDGET_VISIBLE && widget->type != TIGOR_WIDGET_TYPE_IMAGE){
+                GameObjectDraw((GameObject *)widget);
+            }
+        }
+
+        child = child->next;
+    }
     
     if(GUIManagerObjCount() == 0)
         return;

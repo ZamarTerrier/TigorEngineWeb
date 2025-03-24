@@ -34,8 +34,9 @@ void _wManagerInputKey(wManagerWindow* window, int key, int scancode, int action
 
     if (!window->lockKeyMods)
         mods &= ~(TIGOR_MOD_CAPS_LOCK | TIGOR_MOD_NUM_LOCK);
-
-    EngineKeyCallback((wManagerWindow*) window, key, scancode, action, mods);
+    
+    if (window->callbacks.key)
+        window->callbacks.key((wManagerWindow*) window, key, scancode, action, mods);
 }
 // Notifies shared code of a Unicode codepoint input event
 // The 'plain' parameter determines whether to emit a regular character event

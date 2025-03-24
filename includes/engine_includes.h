@@ -27,6 +27,8 @@
 #define MAX_FONTS 256
 #define MAX_IMAGES 256
 
+#define MAX_GUI_CALLBACKS 64
+
 #define START_DRAW_OBJECTS 256
 
 typedef void (*e_charCallback)(void *, uint32_t);
