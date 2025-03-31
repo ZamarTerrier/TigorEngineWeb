@@ -110,6 +110,9 @@ void PathRect(vec2 a, vec2 b, float rounding, uint32_t flags);
 /// @param flags - флаги фигуры
 /// @param thickness - толщина линий
 void PathStroke(vec4 color, uint32_t flags, float thickness);
+void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int num_segments);
+void PathBezierCubicCurveTo( vec2 p2,  vec2 p3, vec2 p4, int num_segments);
+void PathBezierQuadraticCurveTo( vec2 p2, vec2 p3, int num_segments);
 /// @brief Функция инициализация обхекта интрефейса
 void GUIManagerInit(int default_font);
 /// @brief Функция проверки инициализации отрисовщика интерфейса

@@ -508,7 +508,13 @@ void ButtonWidgetDraw(EWidgetButton *button){
 
         vec2 pos = v2_add(button->widget.position, button->widget.base);
 
+
         GUIAddRectFilled(pos, v2_add(pos, button->widget.scale), button->widget.color, button->widget.rounding, GUIDrawFlags_RoundCornersAll);
+        if (button->border_size > 0.0f){
+            GUIAddRect(v2_add(pos, vec2_f(1, 1)), v2_add(v2_add(pos, button->widget.scale), vec2_f(1, 1)), vec4_f(0.00f, 0.00f, 0.00f, 0.00f), button->widget.rounding, 0, button->border_size);
+            GUIAddRect(pos, v2_add(pos, button->widget.scale), vec4_f(0.43f, 0.43f, 0.50f, 0.50f), button->widget.rounding, 0, button->border_size);
+        }
+
         GUIAddText(pos.x, pos.y + button->widget.scale.y / 2, vec4_f( 0, 0, 0, 1.0 ), 7, button->text);
     }            
 }
@@ -526,7 +532,7 @@ void ButtonWidgetInit(EWidgetButton *button, vec2 scale, const char *text, EWidg
     GameObjectSetDrawFunc((GameObject *)button, (void *)ButtonWidgetDraw);
 
     button->widget.type = TIGOR_WIDGET_TYPE_BUTTON;
-    button->widget.rounding = 5.0f;    
+    button->widget.rounding = 10.0f;    
 
     vec2 text_size = GUIGetTextSizeU8(text);
 
@@ -534,6 +540,7 @@ void ButtonWidgetInit(EWidgetButton *button, vec2 scale, const char *text, EWidg
     scale.y = e_max(scale.y, text_size.y);
 
     button->selfColor = vec4_f( 1.0, 1.0, 1.0, 1.0);
+    button->border_size = 2;
 
     if(text != NULL)
         ButtonWidgetSetText(button, text);
